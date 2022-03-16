@@ -23,3 +23,6 @@ programa:
 ; Iniciar el programa en 'programa'
 .org 0xFFFE
 .word programa
+
+
+;; TE QUIERO <3
