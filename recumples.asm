@@ -15,6 +15,7 @@ mes:      .byte 0x7
 dia:      .byte 0x27
 nCumples: .byte 10
 
+
 programa:
   ; Final del programa
   clra
