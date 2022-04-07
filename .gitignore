@@ -1,5 +1,6 @@
 *.rel
 *.s19
 *.map
+*.lst
 *.tar
 *.zip
