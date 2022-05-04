@@ -11,7 +11,7 @@ teclado  .equ 0xFF02
 
 ; VARIABLES
 
-mes: .byte 0x13
+mes: .byte 0x11
 
 enero:       .ascii "enero"
              .byte 0
@@ -58,8 +58,10 @@ programa:
   ldb mes
   cmpb #0x10
   blt menor10
-  subb #(0x10-0x9) ; Si el número es >=0x10, le restamos 0x6 para que
-                   ; continúe en el
+  subb #(0x10 - 0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
+                     ; 0xA (10) y 0x10 (el número que queremos) para que
+                     ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
+                     ; Osea, convertimos el BCD a hexa.
 
   menor10:
     decb
