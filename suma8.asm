@@ -94,8 +94,8 @@ inc8_ret:
 ; Entrada: d (número a incrementar)
 ; Salida: d
 ; Registros afectados:
-inc16:
-  incb
+inc16: 
+  incb                 
   tfr d,x
   tfr b,a
   andb #0x0f
