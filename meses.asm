@@ -13,30 +13,19 @@ teclado  .equ 0xFF02
 
 mes: .byte 0x11
 
-enero:       .ascii "enero"
-             .byte 0
-febrero:     .ascii "febrero"
-             .byte 0
-marzo:       .ascii "marzo"
-             .byte 0
-abril:       .ascii "abril"
-             .byte 0
-mayo:        .ascii "mayo"
-             .byte 0
-junio:       .ascii "junio"
-             .byte 0
-julio:       .ascii "julio"
-             .byte 0
-agosto:      .ascii "agosto"
-             .byte 0
-septiembre:  .ascii "septiembre"
-             .byte 0
-octubre:     .ascii "octubre"
-             .byte 0
-noviembre:   .ascii "noviembre"
-             .byte 0
-diciembre:   .ascii "diciembre"
-             .byte 0
+enero:       .asciz "enero"
+febrero:     .asciz "febrero"
+marzo:       .asciz "marzo"
+abril:       .asciz "abril"
+mayo:        .asciz "mayo"
+junio:       .asciz "junio"
+julio:       .asciz "julio"
+agosto:      .asciz "agosto"
+septiembre:  .asciz "septiembre"
+octubre:     .asciz "octubre"
+noviembre:   .asciz "noviembre"
+diciembre:   .asciz "diciembre"
+
 tablames:
   .word enero
   .word febrero
