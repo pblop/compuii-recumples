@@ -61,13 +61,15 @@ daa_sinAjusteAlto:
 ; Función: suma88                Suma dos números en BCD.
 ; Entrada:
 ;          a: primer número
-;          x: segundo número
+;          b: segundo número
 ; Registros afectados: 
 ; Salida:
 ;          a: suma
 suma88:
-  adda ,x
+  pshs b
+  adda ,s
   bsr daa
+  puls b
   rts
 
 ; Función: inc8.
@@ -96,29 +98,50 @@ inc8_ret:
 ; Registros afectados:
 inc16:
   incb
+  ; pshs d          ; pila [D]
   tfr d,x
   tfr b,a
   andb #0x0f
   cmpb #0x0a
   bne inc16_segunda
+  ldb #6
+  abx
   adda #6
 inc16_segunda:
   cmpa #0xa0
   blo inc16_ret
-  ldb #0xFF
+  ldb #0x60
   abx
-  clra
+inc16_tercera:
+  tfr x,d
+  anda #0x0f
+  cmpa #0x0a
+  bne inc16_ret
+  tfr x,d
+  adda #6
+  tfr d,x
 inc16_ret:
-  
+  tfr x,d
   rts
 
 
 programa:
-  lda #0x69
-  adda #0x7
-  daa
+  lds #0xF000
 
-  jsr suma88
+  lda #0x20
+  ldb #0x41
+  bsr suma88  
+
+  ; lda #0x69
+  ; bsr inc8
+
+  ldd #0x1999
+  bsr inc16
+
+  ldd #0x1969
+  bsr inc16
+
+
 
   ; Final del programa
   clra
