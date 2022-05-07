@@ -10,6 +10,7 @@ teclado  .equ 0xFF02
 .globl programa
 
 ;; VARIABLES
+nCumples: .byte 0x10
 
 ;; FUNCIONES
 
@@ -61,14 +62,72 @@ daa_sinAjusteAlto:
 ; Función: suma88                Suma dos números en BCD.
 ; Entrada:
 ;          a: primer número
-;          x: segundo número
+;          nCumples: segundo numero
 ; Registros afectados: 
 ; Salida:
 ;          a: suma
 suma88:
-  adda ,x
+  adda nCumples
   bsr daa
   rts
+
+; Función: suma816               Suma dos números (8 y 16 bits) en BCD.
+; Entrada:
+;          d: primer número
+;          x: segundo número
+; Registros afectados: 
+; Salida:
+;          d: suma
+suma816:
+  tfr b,a 
+  bsr suma88
+  blo carry
+  tfr a,b
+  lda #19
+carry:
+  tfr a,b
+  lda #20
+
+  rts
+
+;; intento fallido
+;;    pshs d ; guardamos en numero en la pila
+;;    ; comprobamos el carry de la suma de las unidades
+;;    ; para ello me voy a quedar solo con la cifra de las unidades, voy a sumarlas
+;;    ; y voy a ver si esta suma es mayor o igual a 10
+;;    andb #0x0f
+;;    lda ,y
+;;    anda #0x0f
+;;    tfr a,x ; no puedo hacer esto viva
+;;    abx ; sumamos el registro x y b, el resultado se queda en x
+;;    ldb ,x
+;;    cmpb #10
+;;    bhs unidades_carry
+;;    ldx #0;; 
+;;  unidades_carry:
+;;    ldx #1;; 
+;;    ; comprobamos las decenas
+;;    puls d
+;;    pshs d
+;;    andb #0xf0
+;;    lda ,y
+;;    anda #0xf0
+;;    adda ,x
+;;    tfr a,x
+;;    abx
+;;    ldb ,x
+;;    cmpb #10
+;;    bhs decenas_carry
+;;    puls d;; 
+;;  decenas_carry:
+;;    puls d
+;;    ldb #20 ; el rango de anos va desde 1900 y pico hasta 2000 y pico, no hay mas posibilidades;; 
+;;    ; ahrora sumamos
+;;    pshs a
+;;    tfr b,a
+;;    bsr suma88
+;;    tfr a,b
+;;    puls a
 
 ; Función: inc8.
 ;   Incrementa un número de 8 bits
@@ -112,10 +171,7 @@ inc16_ret:
 
 
 programa:
-  lda #0x69
-  adda #0x7
-  daa
-
+  lda #0x50
   jsr suma88
 
   ; Final del programa
