@@ -156,25 +156,24 @@ inc8_ret:
 ; Salida: d
 ; Registros afectados:
 inc16:
-  incb
-  tfr d,x ; psh ocupa el mismo espacio pero puede hacer un ciclo menos
-  andb #0x0f
-  cmpb #0x0a
-  bne inc16_segunda
-  adda #6
-inc16_segunda:
-  cmpa #0xa0
-  blo inc16_ret
-  ldb #0xFF
-  abx
-  clra
-inc16_ret: 
+  tfr b,a
+  bsr inc8
+  cmpa #0
+  beq inc16_segunda
+  tfr a,b
+  lda #0x19
+
   rts
 
+inc16_segunda:
+  tfr a,b
+  lda #0x20 
+
+  rts
 
 programa:
-  ldd #0x1978
-  jsr suma816
+  ldd #0x1999
+  jsr inc16
 
   ; Final del programa
   clra
