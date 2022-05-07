@@ -10,7 +10,7 @@ teclado  .equ 0xFF02
 .globl programa
 
 ;; VARIABLES
-nCumples: .byte 0x10
+nCumples: .byte 0x42
 
 ;; FUNCIONES
 
@@ -74,7 +74,7 @@ suma88:
 ; Función: suma816               Suma dos números (8 y 16 bits) en BCD.
 ; Entrada:
 ;          d: primer número
-;          x: segundo número
+;          nCumples: segundo numero
 ; Registros afectados: 
 ; Salida:
 ;          d: suma
@@ -83,10 +83,12 @@ suma816:
   bsr suma88
   blo carry
   tfr a,b
-  lda #19
+  lda #0x19
+
+  rts
 carry:
   tfr a,b
-  lda #20
+  lda #0x20
 
   rts
 
@@ -171,8 +173,8 @@ inc16_ret:
 
 
 programa:
-  lda #0x50
-  jsr suma88
+  ldd #0x1978
+  jsr suma816
 
   ; Final del programa
   clra
