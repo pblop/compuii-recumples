@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/pablo/Documents/projects/compuii-recumples'
+as6809 -o recumples.asm
+aslink -s recumples.rel
+make: Leaving directory `/Users/pablo/Documents/projects/compuii-recumples'
+ 

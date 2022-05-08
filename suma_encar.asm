@@ -81,15 +81,14 @@ suma88:
 suma816:
   tfr b,a 
   bsr suma88
-  blo carry
   tfr a,b
+  blo suma816_carry
   lda #0x19
 
-  rts
-carry:
-  tfr a,b
+  bra suma816_ret
+suma816_carry:
   lda #0x20
-
+suma816_ret:
   rts
 
 ;; intento fallido
@@ -159,16 +158,13 @@ inc16:
   tfr b,a
   bsr inc8
   cmpa #0
-  beq inc16_segunda
   tfr a,b
+  beq inc16_2000
   lda #0x19
-
-  rts
-
-inc16_segunda:
-  tfr a,b
+  bra inc16_ret
+inc16_2000:
   lda #0x20 
-
+inc16_ret:
   rts
 
 programa:
