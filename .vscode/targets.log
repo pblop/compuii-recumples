@@ -7,18 +7,24 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Mon May  9 01:26:30 2022
+# Make data base, printed on Wed May 11 11:26:12 2022
 
 # Variables
 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
+# environment
+PIPENV_PYTHON = /Users/pablo/.pyenv/shims/python
+# environment
+JABBA_HOME = /Users/pablo/.jabba
 # automatic
 ?F = $(notdir $?)
 # environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
+# environment
 VSCODE_LOG_NATIVE = false
 # environment
-NVM_INC = /Users/pablo/.nvm/versions/node/v16.11.1/include/node
+NVM_INC = /Users/pablo/.nvm/versions/node/v16.13.2/include/node
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -35,36 +41,52 @@ SHELL = /bin/sh
 VSCODE_NLS_CONFIG = {"locale":"es","availableLanguages":{},"_languagePackSupport":true}
 # environment
 _ = /usr/bin/make
-# makefile (from `Makefile', line 1)
-MAKEFILE_LIST :=  Makefile
+# environment
+KITTY_WINDOW_ID = 9
+# environment
+STARSHIP_SESSION_KEY = 3021624602707113
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-PERL_MM_OPT = INSTALL_BASE=/Users/pablo/perl5
+KITTY_SHELL_INTEGRATION = enabled
 # environment
-__CFBundleIdentifier = com.microsoft.VSCode
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/fs/kv4k1_gd5szckzx6x89hg7y00000gn/T/vscode-ipc-6832b420-8d8c-4bc0-90a6-bb6a804dbb36.sock
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/04/4h38tghd4wq_fd1kyhw6y6tr0000gn/T/vscode-ipc-562d26ce-7d0c-4cf3-96dd-e4ae36bac8cc.sock
+MallocSpaceEfficient = 0
 # environment
-VSCODE_CWD = /
+VSCODE_CWD = /Users/pablo/Documents/projects/compuii-recumples
 # environment
 NO_PROXY = 127.0.0.1
 # environment
-LIBRARY_PATH = :/usr/local/lib
+KITTY_PID = 8893
 # environment
-NVM_BIN = /Users/pablo/.nvm/versions/node/v16.11.1/bin
+WINDOWID = 11065
+# makefile (from `Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+NVM_BIN = /Users/pablo/.nvm/versions/node/v16.13.2/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
+# environment
+PYENV_ROOT = /Users/pablo/.pyenv
+# environment
+TERMINFO = /Applications/kitty.app/Contents/Resources/kitty/terminfo
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.UuZPUDgqxq/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.9cCzCmKI1t/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
+DISPLAY = /private/tmp/com.apple.launchd.37gcpPSPRg/org.xquartz:0
+# environment
+TTY = /dev/ttys001
+# environment
 VSCODE_PIPE_LOGGING = true
+# environment
+FIG_PID = 98280
 # environment
 PWD = /Users/pablo/Documents/projects/compuii-recumples
 # environment
@@ -73,16 +95,12 @@ ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 HOME = /Users/pablo
-# environment
-PERL_MB_OPT = --install_base "/Users/pablo/perl5"
-# environment
-PERL_LOCAL_LIB_ROOT = /Users/pablo/perl5
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # environment
-PERL5LIB = /Users/pablo/perl5/lib/perl5
+VSCODE_CLI = 1
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/pablo/Library/Application Support/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
+VSCODE_CODE_CACHE_PATH = /Users/pablo/Library/Application Support/Code/CachedData/dfd34e8260c270da74b5c2d86d61aee4b6d56977
 # environment
 LOGNAME = pablo
 # environment
@@ -94,35 +112,49 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
-PLATFORMIO_PATH = /Users/pablo/.platformio/python3/bin:/usr/local/opt/python@3.10/bin:/Users/pablo/perl5/bin:/Users/pablo/.nvm/versions/node/v16.11.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/Library/Apple/usr/bin:/Users/pablo/.cargo/bin:/usr/local/opt/fzf/bin:/Users/pablo/bin
+KITTY_INSTALLATION_DIR = /Applications/kitty.app/Contents/Resources/kitty
+# environment
+PLATFORMIO_PATH = /Users/pablo/.platformio/python3/bin:/Users/pablo/Library/Android/sdk/platform-tools/:/Users/pablo/bin:/usr/local/Cellar/pyenv-virtualenv/1.1.5/shims:/Users/pablo/.pyenv/shims:/Users/pablo/.pyenv/bin:/Users/pablo/.nvm/versions/node/v16.13.2/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/MacGPG2/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/pablo/.cargo/bin:/Applications/kitty.app/Contents/MacOS:/Users/pablo/.fig/bin:/Users/pablo/.local/bin:/usr/local/opt/fzf/bin
+# environment
+COLORTERM = truecolor
 # default
 MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-PATH = /usr/local/opt/python@3.10/bin:/Users/pablo/perl5/bin:/Users/pablo/.nvm/versions/node/v16.11.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/Library/Apple/usr/bin:/Users/pablo/.cargo/bin:/usr/local/opt/fzf/bin:/Users/pablo/bin
+PATH = /Users/pablo/Library/Android/sdk/platform-tools/:/Users/pablo/bin:/usr/local/Cellar/pyenv-virtualenv/1.1.5/shims:/Users/pablo/.pyenv/shims:/Users/pablo/.pyenv/bin:/Users/pablo/.nvm/versions/node/v16.13.2/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/MacGPG2/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/pablo/.cargo/bin:/Applications/kitty.app/Contents/MacOS:/Users/pablo/.fig/bin:/Users/pablo/.local/bin:/usr/local/opt/fzf/bin
 # environment
-SHLVL = 1
+__CFBundleIdentifier = com.microsoft.VSCode
+# environment
+SHLVL = 4
+# environment
+FIG_TERM = 1
 # environment
 XPC_FLAGS = 0x0
 # default
 MAKE_VERSION := 3.81
 # environment
 USER = pablo
-# makefile
-.DEFAULT_GOAL := all
+# environment
+FIG_TERM_VERSION = 4.3.0
+# environment
+TERM_SESSION_ID = 8E3180FB-A128-4BBE-B227-7C93894CDECB
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
+# environment
+FIG_INTEGRATION_VERSION = 8
 # default
 MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
 # default
 .VARIABLES := 
 # environment
-TMPDIR = /var/folders/04/4h38tghd4wq_fd1kyhw6y6tr0000gn/T/
+TMPDIR = /var/folders/fs/kv4k1_gd5szckzx6x89hg7y00000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/pablo/Library/Application Support/Code/1.67.0-main.sock
+VSCODE_IPC_HOOK = /Users/pablo/Library/Application Support/Code/1.66.2-main.sock
+# environment
+MallocNanoZone = 0
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -132,7 +164,7 @@ MFLAGS = -Rrqp
 # environment
 NVM_DIR = /Users/pablo/.nvm
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.43793975.43793981
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.8661100.8661106.497595EA-285A-4427-8764-EC2BA0D4B921
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -141,6 +173,8 @@ XPC_SERVICE_NAME = application.com.microsoft.VSCode.43793975.43793981
 __CF_USER_TEXT_ENCODING = 0x1F5:0x0:0x8
 # environment
 COMMAND_MODE = unix2003
+# environment
+RPROMPT = %F{cyan%}13ms %F{reset_color%}
 # default
 MAKEFILES := 
 # automatic
@@ -151,20 +185,30 @@ PLATFORMIO_CALLER = vscode
 LC_ALL = C
 # automatic
 ^F = $(notdir $^)
+# environment
+JABBA_VERSION = 0.11.2
 # default
 SUFFIXES := 
+# environment
+PYENV_VIRTUALENV_INIT = 1
 # default
 .INCLUDE_DIRS = /usr/local/include
 # environment
 MAKELEVEL := 0
+# makefile
+.DEFAULT_GOAL := all
 # environment
 CLICOLOR = 1
 # environment
 LANG = C
 # environment
-VSCODE_PID = 1019
+TERM = xterm-kitty
+# environment
+VSCODE_PID = 81928
+# environment
+STARSHIP_SHELL = zsh
 # variable set hash-table stats:
-# Load=76/1024=7%, Rehash=0, Collisions=3/102=3%
+# Load=98/1024=10%, Rehash=0, Collisions=10/124=8%
 
 # Pattern-specific Variable Values
 
@@ -172,9 +216,9 @@ VSCODE_PID = 1019
 
 # Directories
 
-# . (device 16777229, inode 43490333): 23 files, no impossibilities.
+# . (device 16777223, inode 5579828): 39 files, no impossibilities.
 
-# 23 files, no impossibilities in 1 directories.
+# 39 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -200,7 +244,7 @@ all: recumples.s19
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-07 21:07:44
+#  Last modified 2022-05-09 12:15:15
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -225,7 +269,7 @@ debug: recumples_s.s19
 # Not a target:
 recumples.asm:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-04 21:02:11
+#  Last modified 2022-04-06 18:53:42
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -234,7 +278,7 @@ recumples.asm:
 recumples.rel: recumples.asm
 #  Implicit rule search has not been done.
 #  Implicit/static pattern stem: `'
-#  File does not exist.
+#  Last modified 2022-03-17 12:06:34
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -254,6 +298,7 @@ recumples.rel: recumples.asm
 # automatic
 # ? := recumples.asm
 # variable set hash-table stats:
+ 
 # Load=8/32=25%, Rehash=0, Collisions=1/10=10%
 #  commands to execute (from `Makefile', line 4):
 	as6809 -o recumples.asm
@@ -291,7 +336,7 @@ clean:
 
 recumples.s19: recumples.rel
 #  Implicit rule search has not been done.
-#  File does not exist.
+#  Last modified 2022-03-17 12:06:34
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -310,10 +355,9 @@ recumples.s19: recumples.rel
 
 # # of strings in strcache: 1
 # # of strcache buffers: 1
- 
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon May  9 01:26:30 2022
+# Finished Make data base on Wed May 11 11:26:12 2022
 
  
