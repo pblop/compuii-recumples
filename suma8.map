@@ -1,0 +1,44 @@
+ASxxxx Linker V05.00,  page 1.
+Hexidecimal  [16-Bits]
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+.  .ABS.                   0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0000  l_PROG                          
+          0000  l__DATA                         
+          0000  l__CODE                         
+          0000  s_PROG                          
+          0000  s__DATA                         
+          0000  s__CODE                         
+          0000  .__.ABS.                           
+          FF00  pantalla                           
+          FF01  fin                                
+          FF02  teclado                            
+
+ASxxxx Linker V05.00,  page 2.
+Hexidecimal  [16-Bits]
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+PROG                       0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0100  suma88                             
+          0103  suma88_ret                         
+          0104  incrementa                         
+          010F  incrementaSegunda                  
+          0114  incrementaRetorno                  
+          0115  programa                           
+
+ASxxxx Linker V05.00,  page 3.
+
+Files Linked                              [ module(s) ]
+
+suma8.rel                                 [  ]
+
+
+

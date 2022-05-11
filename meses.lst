@@ -1,0 +1,136 @@
+ASxxxx Assembler V05.40  (Motorola 6809)                                Page 1
+Hexadecimal [16-Bits]                                 Thu Apr  7 16:10:11 2022
+
+
+
+                              1 .area PROG (ABS)
+                              2 
+                              3 ; CONSTANTES
+                     FF01     4 fin      .equ 0xFF01
+                     FF00     5 pantalla .equ 0xFF00
+                     FF02     6 teclado  .equ 0xFF02
+                              7 
+                              8 ; DIRECTIVAS
+   0100                       9 .org 0x100
+                             10 .globl programa
+                             11 
+                             12 ; VARIABLES
+                             13 
+   0100 13                   14 mes: .byte 0x13
+                             15 
+   0101 65 6E 65 72 6F       16 enero:       .ascii "enero"
+   0106 00                   17              .byte 0
+   0107 66 65 62 72 65 72    18 febrero:     .ascii "febrero"
+        6F
+   010E 00                   19              .byte 0
+   010F 6D 61 72 7A 6F       20 marzo:       .ascii "marzo"
+   0114 00                   21              .byte 0
+   0115 61 62 72 69 6C       22 abril:       .ascii "abril"
+   011A 00                   23              .byte 0
+   011B 6D 61 79 6F          24 mayo:        .ascii "mayo"
+   011F 00                   25              .byte 0
+   0120 6A 75 6E 69 6F       26 junio:       .ascii "junio"
+   0125 00                   27              .byte 0
+   0126 6A 75 6C 69 6F       28 julio:       .ascii "julio"
+   012B 00                   29              .byte 0
+   012C 61 67 6F 73 74 6F    30 agosto:      .ascii "agosto"
+   0132 00                   31              .byte 0
+   0133 73 65 70 74 69 65    32 septiembre:  .ascii "septiembre"
+        6D 62 72 65
+   013D 00                   33              .byte 0
+   013E 6F 63 74 75 62 72    34 octubre:     .ascii "octubre"
+        65
+   0145 00                   35              .byte 0
+   0146 6E 6F 76 69 65 6D    36 noviembre:   .ascii "noviembre"
+        62 72 65
+   014F 00                   37              .byte 0
+   0150 64 69 63 69 65 6D    38 diciembre:   .ascii "diciembre"
+        62 72 65
+   0159 00                   39              .byte 0
+   015A                      40 tablames:
+   015A 01 01                41   .word enero
+   015C 01 07                42   .word febrero
+   015E 01 0F                43   .word marzo
+   0160 01 15                44   .word abril
+   0162 01 1B                45   .word mayo
+   0164 01 20                46   .word junio
+   0166 01 26                47   .word julio
+   0168 01 2C                48   .word agosto
+   016A 01 33                49   .word septiembre ; 0x9
+   016C 01 3E                50   .word octubre    ; 0x10
+ASxxxx Assembler V05.40  (Motorola 6809)                                Page 2
+Hexadecimal [16-Bits]                                 Thu Apr  7 16:10:11 2022
+
+
+
+   016E 01 46                51   .word noviembre  ; 0x11
+   0170 01 50                52   .word diciembre  ; 0x12
+                             53 
+                             54 
+   0172                      55 programa:
+   0172 8E 01 5A      [ 3]   56   ldx #tablames
+                             57   ; 123 ciclos
+   0175 F6 01 00      [ 5]   58   ldb mes
+   0178 C1 10         [ 2]   59   cmpb #0x10
+   017A 2D 02         [ 3]   60   blt menor10
+   017C C0 07         [ 2]   61   subb #(0x10-0x9) ; Si el número es >=0x10, le restamos 0x6 para que
+                             62                    ; continúe en el
+                             63 
+   017E                      64   menor10:
+   017E 5A            [ 2]   65     decb
+   017F 58            [ 2]   66     aslb
+   0180 AE 85         [ 6]   67     ldx b,x
+                             68 
+                             69   ; 123 ciclos
+                             70   ;lda mes
+                             71   ;deca
+                             72   ;asla
+                             73   ;ldx #tablames
+                             74   ;leax a,x
+                             75   ;ldx ,x
+                             76 
+   0182                      77   bucle:
+   0182 A6 80         [ 6]   78     lda ,x+
+   0184 27 05         [ 3]   79     beq acabar
+   0186 B7 FF 00      [ 5]   80     sta pantalla
+   0189 20 F7         [ 3]   81     bra bucle
+                             82 
+                             83 
+                             84   ; Final del programa
+   018B                      85   acabar:
+   018B 4F            [ 2]   86     clra
+   018C B7 FF 01      [ 5]   87     sta fin
+                             88 
+                             89 ; Iniciar el programa en 'programa'
+   FFFE                      90 .org 0xFFFE
+   FFFE 01 72                91 .word programa
+ASxxxx Assembler V05.40  (Motorola 6809)                                Page 3
+Hexadecimal [16-Bits]                                 Thu Apr  7 16:10:11 2022
+
+Symbol Table
+
+    .__.$$$.       =   2710 L   |     .__.ABS.       =   0000 G
+    .__.CPU.       =   0000 L   |     .__.H$L.       =   0001 L
+  2 abril              0115 R   |   2 acabar             018B R
+  2 agosto             012C R   |   2 bucle              0182 R
+  2 diciembre          0150 R   |   2 enero              0101 R
+  2 febrero            0107 R   |     fin            =   FF01 
+  2 julio              0126 R   |   2 junio              0120 R
+  2 marzo              010F R   |   2 mayo               011B R
+  2 menor10            017E R   |   2 mes                0100 R
+  2 noviembre          0146 R   |   2 octubre            013E R
+    pantalla       =   FF00     |   2 programa           0172 GR
+  2 septiembre         0133 R   |   2 tablames           015A R
+    teclado        =   FF02 
+
+ASxxxx Assembler V05.40  (Motorola 6809)                                Page 4
+Hexadecimal [16-Bits]                                 Thu Apr  7 16:10:11 2022
+
+Area Table
+
+[_CSEG]
+   0 _CODE            size    0   flags C080
+   2 PROG             size    0   flags  908
+[_DSEG]
+   1 _DATA            size    0   flags C0C0
+

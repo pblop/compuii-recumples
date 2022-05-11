@@ -1,0 +1,56 @@
+ASxxxx Linker V05.00,  page 1.
+Hexidecimal  [16-Bits]
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+.  .ABS.                   0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0000  l_PROG                          
+          0000  l__DATA                         
+          0000  l__CODE                         
+          0000  s_PROG                          
+          0000  s__DATA                         
+          0000  s__CODE                         
+          0000  .__.ABS.                           
+          FF00  pantalla                           
+          FF01  fin                                
+          FF02  teclado                            
+
+ASxxxx Linker V05.00,  page 2.
+Hexidecimal  [16-Bits]
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+PROG                       0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0100  mes                                
+          0101  enero                              
+          0107  febrero                            
+          010F  marzo                              
+          0115  abril                              
+          011B  mayo                               
+          0120  junio                              
+          0126  julio                              
+          012C  agosto                             
+          0133  septiembre                         
+          013E  octubre                            
+          0146  noviembre                          
+          0150  diciembre                          
+          015A  tablames                           
+          0172  programa                           
+          017E  menor10                            
+          0182  bucle                              
+          018B  acabar                             
+
+ASxxxx Linker V05.00,  page 3.
+
+Files Linked                              [ module(s) ]
+
+meses.rel                                 [  ]
+
+
+

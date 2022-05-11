@@ -4,3 +4,6 @@
 *.lst
 *.tar
 *.zip
+*
+!*.*
+!Makefile

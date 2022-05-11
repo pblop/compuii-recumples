@@ -1,0 +1,38 @@
+ASxxxx Linker V05.40                                                                Page 1
+Hexadecimal [16-Bits]                                 Wed Mar 30 19:35:25 2022
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+.  .ABS.                   0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0000  .__.ABS.                           
+          FF00  pantalla                           
+          FF01  fin                                
+          FF02  teclado                            
+ASxxxx Linker V05.40                                                                Page 2
+Hexadecimal [16-Bits]                                 Wed Mar 30 19:35:25 2022
+
+Area                       Addr        Size        Decimal Bytes (Attributes)
+--------------------       ----        ----        ------- ----- ------------
+PROG                       0000        0000 =           0. bytes (ABS,OVR,CSEG)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+          0100  ano                                
+          0102  n                                  
+          0103  programa                           
+          0112  no_bisiesto                        
+          0123  si_bisiesto                        
+          0132  final                              
+
+ASxxxx Linker V05.40                                                                Page 3
+Hexadecimal [16-Bits]                                 Wed Mar 30 19:35:25 2022
+
+Files Linked                              [ module(s) ]
+
+bisiesto.rel                              [  ]
+
+
+
