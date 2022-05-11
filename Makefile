@@ -15,6 +15,15 @@ run: recumples.s19
 	m6809-run -C recumples.s19
 debug: recumples_s.s19
 	m6809-run -d -C recumples_s.s19
+tam: recumples.s19
+	@echo $(shell cat recumples.s19 | ./calculaLongitud.sh) bytes
+testReubic: recumples.asm
+	./tamano.py
+testCorrecto: recumples.asm
+	./tamano.py
+test: testReubic testCorrecto
+	
+
 
 clean:
 	rm recumples.rel recumples.s19 recumples_s.rel recumples_s.s19

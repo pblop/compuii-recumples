@@ -1,43 +1,68 @@
 #include <stdio.h>
-#define DIA 10
-#define MES 6
-#define ANO 1980
+#include <stdlib.h>
 
-int timestamp = 0;
-char nCumples = 10;
+char dia = 31;
+char mes = 7;
+short ano = 1969;
+char nCumples = 30;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
 
-char anoBisiesto(ano)
+char anoBisiesto()
 {
   return ano % 4 == 0;
 }
 
-void actualizarBisiesto(ano)
+void corregirMes()
 {
-  if (anoBisiesto(ano))
+  if (mes > 12)
+  {
+    mes = 1;
+    ano++;
+  }
+}
+
+void corregirDia()
+{
+  if (anoBisiesto())
     dias[1] = 29;
   else
     dias[1] = 28;
+
+  if (dia > dias[mes - 1])
+  {
+    dia = dia - dias[mes - 1];
+    mes++;
+    corregirMes();
+  }
 }
 
 int main()
 {
-  for (int i = 1920; i < ANO; i++)
+  int mesAnt;
+  int anoPre;
+  for (int i = 0; i <= nCumples; i++)
   {
-    timestamp += 365;
-    if (anoBisiesto(i))
-      timestamp += 1;
+    printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
+    dia++;
+    if (dia >= dias[mes + 1 - 1] + 1)
+    {
+      dia = dia - dias[mes + 1 - 1];
+      mes++;
+      corregirMes();
+    }
+    else
+      dia += dias[mes - 1] - dias[mes - 2];
+
+    mes++;
+    corregirMes();
+    ano++;
+    if (mes == 1)
+      ano++;
+
+    // corregirDia();
   }
-  for (int i = 1; i <= MES; i++)
-  {
-    if (i == 2)
-      actualizarBisiesto(ANO);
-    timestamp += dias[i];
-  }
-  timestamp += DIA;
-  printf("%d\n", timestamp);
 
   return 0;
 }

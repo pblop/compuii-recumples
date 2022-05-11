@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 char dia = 31;
 char mes = 7;
 short ano = 1969;
-char nCumples = 10;
+char nCumples = 30;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
@@ -40,20 +42,20 @@ int main()
 {
   int mesAnt;
   int anoPre;
-  for (int i = 0; i < nCumples; i++)
+  for (int i = 0; i <= nCumples; i++)
   {
-    printf("%02d: %02d de %s de %04d\n", i, dia, meses[mes - 1], ano);
+    printf("%02d: %02d (%d) de %s de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], ano);
     ano++;
     anoPre = ano;
-    mesAnt = mes;
     mes++;
+    mesAnt = mes;
     corregirMes();
 
     corregirDia();
-    dia++;
     if (anoPre == ano)
     {
-      dia -= dias[mes - 2] - dias[mes - 1];
+      dia += 1 - (dias[mes - 2] - dias[mes - 1]);
+      // printf("%d - %d = %d, %d\n", dias[mes - 2], dias[mes - 1], dias[mesAnt - 2] - dias[mes - 1], dia);
     }
 
     corregirDia();

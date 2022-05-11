@@ -1,12 +1,12 @@
 #include <stdio.h>
-#define DIA 31
-#define MES 7
-#define ANO 1969
+//#define DIA 31
+//#define MES 7
+//#define ANO 1969
 
 char dia = DIA;
 char mes = MES;
 short ano = ANO;
-char nCumples = 10;
+char nCumples = 30;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
