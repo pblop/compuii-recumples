@@ -132,9 +132,9 @@ suma816_ret:
 
 ; Función: inc8.
 ;   Incrementa un número de 8 bits
-; Entrada: a (número a incrementar)
-; Salida: a
-; Registros afectados: b
+; Entrada: b (número a incrementar)
+; Salida: b
+; Registros afectados: 
 inc8:
   inca
   tfr a,b
