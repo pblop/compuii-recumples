@@ -1,12 +1,12 @@
 #include <stdio.h>
-#define DIA 31
-#define MES 7
-#define ANO 1969
+#define DIA 29
+#define MES 1
+#define ANO 1940
 
 char dia = DIA;
 char mes = MES;
 short ano = ANO;
-char nCumples = 10;
+char nCumples = 25;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
@@ -63,7 +63,7 @@ int main()
     dia += i;
 
     corregirDia();
-    printf("%02d: %02d (%d) de %s de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], ano);
+    printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
   }
 
   return 0;
