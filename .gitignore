@@ -1,3 +1,5 @@
+!*.*
+!Makefile
 *.rel
 *.s19
 *.map
@@ -5,5 +7,3 @@
 *.tar
 *.zip
 *
-!*.*
-!Makefile
