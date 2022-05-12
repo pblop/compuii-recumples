@@ -38,6 +38,11 @@ void corregirDia()
   }
 }
 
+void febreroDaPorCulo()
+{
+  
+}
+
 int main()
 {
   int mesAnt;

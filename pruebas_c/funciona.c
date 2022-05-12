@@ -16,8 +16,6 @@ char anoBisiesto()
 
 int main()
 {
-  int mesAnt;
-  int anoPre;
   for (int i = 0; i <= nCumples; i++)
   {
     printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);

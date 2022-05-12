@@ -5,115 +5,86 @@ char dia = 17;
 char mes = 4;
 short ano = 1920;
 char nCumples = 30;
-char mecagoentodo = 0;
+int i = 0;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
 
-char anoBisiesto()
+char anoBisiesto(short a)
 {
-  return ano % 4 == 0;
+  return (a + 1) % 4 == 0;
 }
 
-void tuputamadre()
+void corregirBisiesto()
 {
-  if (dias[mes - 1] == 31)
-    mecagoentodo = 1;
+  if (anoBisiesto(ano))
+    dias[1] = 29;
   else
-    mecagoentodo = 0;
+    dias[1] = 28;
+}
+
+// llamamos a esta funcion if(mes == 1 && (dia == 29 || dia == 28))
+void MeCagoEnFebrero()
+{
+  dia++;
+  dia = dia - dias[1];
+  mes = 3;
+  ano++;
+  // comprobar que esto es cierto tambien para los anos bisiestos
+  // que no lo va a ser porque si enero == 28 enotnces el siguiente si puede 
+  // ser febrero y dia == 29
+  MostrarFecha();
+  i++;
+  dia += 29;
+  ano++;
+  MostrarFecha();
+  i++;
+}
+// despues de llamar a la funcion volvemos al principio del for
+// creo que esto nunca va a pasar dentro del while primero.
+
+void MostrarFecha()
+{
+  printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
 }
 
 int main()
 {
-  int mesAnt;
-  int anoPre;
-  tuputamadre();
-  for (int i = 0; i <= nCumples; i++)
+  for (i = 0; i <= nCumples; i++)
   {
-    printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
-    
-    dia++;
-    // printf("\n\n");
-    // printf("\n\tdia incrementado: %d",dia);
-    if (mes == 12)
+    // aqui realmente nos la suda si el ano el bisiesto o no, porque usamos eso para determinar
+    // los dias maximos de febrero. En este caso, eso nos importaria en el caso de que enero
+    // tuviera un dia alto, pero esa queda solucionado con MeCagoEnFebrero.
+
+    // ahora le meto me cago en febrero
+    while (dia < dias[mes - 1 + 1])
     {
-      // printf("\nhola soy diciembre");
-      if (dia > 31)
+      MostrarFecha();
+      if (mes == 1 && (dia == 28 || dia == 29))
       {
-        dia = dia - 31;
-        // printf("\ndias me he asao: %d", dia);
-        mes = 1;
-      }
-      else if(i != 0)
-      {
-        if (mecagoentodo)
-          dia += dias[mes - 2] - dias[mes - 1];
-        else
-          dia += dias[mes - 1] - dias[mes - 2];
-        
-        
-        // printf("\ndias normales %d", dia);
-        mes = 0;
-      }
-      
-    }else
-    {
-      if (dia >= dias[mes + 1 - 1] + 1)
-      {
-        // printf("\nNos pasamos de meses.");
-        // printf("\ndia = %d - %d", dia, dias[mes + 1 - 1]);
-        dia = dia - dias[mes + 1 - 1];
-        // printf("= %d", dia);
-        mes++;
-        // printf("\nmes: %d", mes);
-      }
-      else
-      {
-        // printf("\nNo nos pasamos.\n");
-        if (mes == 1)
-        {
-          // printf("\nhola soy enero. No sumo nada porque 31 - 31 es 0");
-          // TODO: mirar a ver si esto pasa en mas meses
-          // realemtne pasa cuando el mes anterior y este tienen el mismo numero de dias
-          // Ej: diciembre-enero, julio-agosto
-        } else
-        {
-          // para que de en febrero tenemos que usar 28 dias, no 29
-          if (mes == 2)
-          {
-            if (i != 0)
-            {
-              // printf("\nhola soy febrero");
-              dia += 31 - 28;
-            }
+        corregirBisiesto();
+        if (anoBisiesto(ano))
+          if (dia != 28)
+            MeCagoEnFebrero();
           
-          }else
-          {
-            if (i != 0 )
-            {
-              if (mecagoentodo)
-                dia += dias[mes - 2] - dias[mes - 1];
-              else
-                dia += dias[mes - 1] - dias[mes - 2];
-            }
-            
-          }
+        else  
+          MeCagoEnFebrero();
+      } else
+      {
+        dia++;
+        mes++;
+        if (mes == 13)
+        {
+          mes = 1;
+          ano++;
+        }
+        ano++;
+        i++;
       }
-       }
     }
-
-    mes++;
-    // printf("\n\tmes: %d", mes);
-    ano++;
-    // printf("\n\tano: %d\n\n", ano);
-    if (mes == 1)
-      ano++;
-
-    if (anoBisiesto())
-      dias[1] = 29;
-    else
-      dias[1] = 28;
     
+
+    // algoritmo tope chungo de funciona.c
   }
 
   return 0;
