@@ -17,8 +17,8 @@ debug: recumples_s.s19
 	m6809-run -d -C recumples_s.s19
 tam: recumples.s19
 	@echo $(shell cat recumples.s19 | ./calculaLongitud.sh) bytes
-testReubic: recumples.asm
-	./tamano.py
+testReubic: recumples.rel
+	./comprobarReubicable.sh recumples
 testCorrecto: recumples.asm
 	./tamano.py
 test: testReubic testCorrecto
