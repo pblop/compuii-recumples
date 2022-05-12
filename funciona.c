@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char dia = 17;
-char mes = 4;
-short ano = 1920;
+char dia = 31;
+char mes = 7;
+short ano = 1969;
 char nCumples = 30;
-char mecagoentodo = 0;
 
 char dias[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char *meses[12] = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
@@ -15,23 +14,13 @@ char anoBisiesto()
   return ano % 4 == 0;
 }
 
-void tuputamadre()
-{
-  if (dias[mes - 1] == 31)
-    mecagoentodo = 1;
-  else
-    mecagoentodo = 0;
-}
-
 int main()
 {
   int mesAnt;
   int anoPre;
-  tuputamadre();
   for (int i = 0; i <= nCumples; i++)
   {
     printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
-    
     dia++;
     // printf("\n\n");
     // printf("\n\tdia incrementado: %d",dia);
@@ -44,17 +33,10 @@ int main()
         // printf("\ndias me he asao: %d", dia);
         mes = 1;
       }
-      else if(i != 0)
-      {
-        if (mecagoentodo)
-          dia += dias[mes - 2] - dias[mes - 1];
-        else
-          dia += dias[mes - 1] - dias[mes - 2];
-        
-        
+      else
+        dia += dias[mes - 2] - dias[mes - 1];
         // printf("\ndias normales %d", dia);
         mes = 0;
-      }
       
     }else
     {
@@ -69,7 +51,7 @@ int main()
       }
       else
       {
-        // printf("\nNo nos pasamos.\n");
+        // printf("\nNo nos pasamos.\ndia = dia + %d - %d",dias[mes - 2], dias[mes - 1]);
         if (mes == 1)
         {
           // printf("\nhola soy enero. No sumo nada porque 31 - 31 es 0");
@@ -81,22 +63,12 @@ int main()
           // para que de en febrero tenemos que usar 28 dias, no 29
           if (mes == 2)
           {
-            if (i != 0)
-            {
-              // printf("\nhola soy febrero");
-              dia += 31 - 28;
-            }
-          
+            // printf("\nhola soy febrero");
+            dia += 31 - 28;
           }else
           {
-            if (i != 0 )
-            {
-              if (mecagoentodo)
-                dia += dias[mes - 2] - dias[mes - 1];
-              else
-                dia += dias[mes - 1] - dias[mes - 2];
-            }
-            
+            dia += dias[mes - 2] - dias[mes - 1];
+            // printf("= %d", dia);
           }
       }
        }
