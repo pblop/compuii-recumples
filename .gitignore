@@ -1,3 +1,4 @@
+*
 !*.*
 !Makefile
 *.rel
@@ -6,4 +7,3 @@
 *.lst
 *.tar
 *.zip
-*
