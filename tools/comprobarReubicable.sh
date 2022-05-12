@@ -4,8 +4,8 @@
 aslink -s -b _CODE=0x100 "${1}-100.s19" "${1}.rel" > /dev/null
 aslink -s -b _CODE=0x1234 "${1}-1234.s19" "${1}.rel" > /dev/null
 
-B100=$(./muestraBytes.sh "${1}-100.s19")
-B1234=$(./muestraBytes.sh "${1}-1234.s19")
+B100=$(./tools/muestraBytes.sh "${1}-100.s19")
+B1234=$(./tools/muestraBytes.sh "${1}-1234.s19")
 
 DIFF=$(diff <(echo $B100) <(echo $B1234))
 
