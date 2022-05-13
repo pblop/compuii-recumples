@@ -63,7 +63,7 @@ int main()
     dia += i;
 
     corregirDia();
-    printf("%02d: %02d (%d) de %s de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], ano);
+    printf("%02d: %02d de %s de %04d\n", i, dia, meses[mes - 1], ano);
   }
 
   return 0;
