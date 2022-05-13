@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char dia = 25;
-char mes = 9;
-short ano = 1975;
+char dia = 8;
+char mes = 1;
+short ano = 1920;
 char nCumples = 30;
 int i = 0;
 
@@ -117,12 +117,15 @@ int main()
           dia = dia - 31;
           // printf("\ndias me he asao: %d", dia);
           mes = 1;
+          ano++;
         }
         else
+        {
           dia += dias[mes - 2] - dias[mes - 1];
           // printf("\ndias normales %d", dia);
           mes = 0;
 
+        }
       }else
       {
         if (dia >= dias[mes + 1 - 1] + 1)
