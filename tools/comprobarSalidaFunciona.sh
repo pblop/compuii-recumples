@@ -32,6 +32,9 @@ do
         printf "==========================\n"
         printf "Encontrado:\n"
         printf "$salida\n"
+        printf "==========================\n"
+        printf "Diferencia:\n"
+        printf "$(diff <(printf "$salidacorrecta\n") <(printf "$salida\n"))\n"
         exit
       fi
     done
