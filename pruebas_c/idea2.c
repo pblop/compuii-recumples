@@ -1,7 +1,7 @@
 #include <stdio.h>
-#define DIA 30
-#define MES 1
-#define ANO 1999
+#define DIA 25
+#define MES 9
+#define ANO 1975
 
 char dia = DIA;
 char mes = MES;
