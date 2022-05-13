@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char dia = 8;
-char mes = 1;
+char dia = 19;
+char mes = 3;
 short ano = 1920;
 char nCumples = 30;
 int i = 0;
@@ -25,7 +25,7 @@ void corregirBisiesto()
 
 void MostrarFecha()
 {
-  printf("%02d: %02d (%d) de %s (%d) de %04d\n", i, dia, dias[mes - 1], meses[mes - 1], mes, ano);
+  printf("%02d: %02d  de %s de %04d\n", i, dia, meses[mes - 1], ano);
 }
 
 // llamamos a esta funcion if(mes == 1 && (dia == 29 || dia == 28))
@@ -96,6 +96,7 @@ int main()
         {
           // printf("dia es 29\n");
           MeCagoEnFebrero();
+          dia++; // el dia += 29 de la funcion no funciona para bisiestos
         }
       }
       else{
