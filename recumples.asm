@@ -67,18 +67,18 @@ actualiza_bisiesto:
 
   ; Si el último bit de la última cifra es 1, no es bisiesto.
   bitb #0b00000001
-  bne actualiza_bisiesto_no_bisiesto
+  bne ab_no_bisiesto
 
   andb #0b00010010
-  beq actualiza_bisiesto_si_bisiesto
+  beq ab_si_bisiesto
   cmpb #0b00010010
-  beq actualiza_bisiesto_si_bisiesto
+  beq ab_si_bisiesto
 
-  actualiza_bisiesto_no_bisiesto:
+  ab_no_bisiesto:
     ldb #0x28
-  actualiza_bisiesto_si_bisiesto:
+  ab_si_bisiesto:
     ldb #0x29
-  actualiza_bisiesto_ret:
+  ab_ret:
     stb tabladiasmes+2-1
     rts
 
