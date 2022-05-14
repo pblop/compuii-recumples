@@ -61,9 +61,12 @@ tabladiasmes:
 ; Función.
 ; Actualiza el valor de la tabla de los días de los meses
 ; en función de si el año actual es bisiesto.
-; Afecta: d
+; Entrada: nada
+; Salida: los días de febrero en la tabladiasmes
+; Afecta: D, tabladiasmes
 actualiza_bisiesto:
-  ldd ano ;; TODO: Posiblemente optimizable.
+  ldd ano ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
+          ;; de ano).
 
   ; Si el último bit de la última cifra es 1, no es bisiesto.
   bitb #0b00000001
@@ -83,12 +86,137 @@ actualiza_bisiesto:
     rts
 
 ; Función.
-; 
-; Afecta: 
+; Imprime la cadena ASCII marcada por X por pantalla.
+; Entrada: X (dirección de la cadena a imprimir)
+; Salida: pantalla
+; Afecta: X, A
+imprimeASCII:
+  iA_bucle:
+    lda ,x+
+    beq iA_acabar
+    sta pantalla
+    bra iA_bucle
 
+  iA_acabar:
+    rts
+
+; Función.
+; Imprime el mes en B por pantalla.
+; Entrada: B (el mes)
+; Salida: pantalla
+; Afecta: X, A
+imprimeMes:
+  ldx #tablames
+  ldb mes
+  cmpb #0x10
+  blt iM_menor10
+  subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
+                   ; 0xA (10) y 0x10 (el número que queremos) para que
+                   ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
+                   ; Osea, convertimos el BCD a hexa.
+  iM_menor10:
+    decb
+    aslb
+    ldx b,x
+
+  jsr imprimeASCII
+  rts
+
+
+; Función.
+; Imprime el día o el año (en BCD), en función del
+; valor de B (si 0, día; si 1, año).
+; Entrada: B: 0 si dia, 1 si año
+; Salida: pantalla
+; Afecta: D
+imprimeBCD:
+  cmpb #1
+  beq iBCD_ano
+    ; Día
+    lda dia
+    lsra lsra lsra lsra
+    adda #'0
+    sta pantalla
+
+    lda dia
+    anda #0x0f
+    adda #'0
+    sta pantalla
+    bra iBCD_fin
+  iBCD_ano:
+    ldd ano ;; Dos primeras cifras
+    lsra lsra lsra lsra
+    adda #'0
+    sta pantalla
+    ldd ano
+    anda #0x0f
+    adda #'0
+    sta pantalla
+    
+    ldd ano ;; Dos últimas cifras
+    lsrb lsrb lsrb lsrb
+    addb #'0
+    stb pantalla
+    ldd ano
+    andb #0x0f
+    addb #'0
+    stb pantalla
+
+  iBCD_fin:
+    rts
+
+; Función
+; Imprime " de " por pantalla.
+; Entrada: nada
+; Salida: pantalla
+; Afecta: X
+imprimeDe:
+  ldx #de
+  jsr imprimeASCII
+
+  rts
+
+; Función.
+; Imprime una fecha en el fomato correcto por pantalla. 
+; Entrada:
+;          X (año (BCD))
+;          A (mes (BCD))
+;          B (día (BCD))
+; Salida: pantalla
+; Afecta: X, D
+imprimeFecha:
+  ldb #0
+  jsr imprimeBCD
+  jsr imprimeDe
+  jsr imprimeMes
+  jsr imprimeDe
+  ldb #1
+  jsr imprimeBCD
+
+  rts
 
 programa:
+  ; Inicializar stacks.
   lds #0xF000
+  ldu #0xE000
+  ; STACK U
+  ; 0: i
+  ; 1: dia
+  ; 2: mes
+  ; 3-4: ano
+
+  ; Bucle para i.
+  pshu #0 ; i = 0
+  mbuclei:
+    
+
+    inc -1, u
+    lda -1, u
+    cmpa nCumples
+    ble mbuclei
+
+
+
   ; Final del programa
   clra
   sta fin
