@@ -11,6 +11,8 @@
 
 4. Si usamos daa, hace falta usar el de guillermo o podemos usar el normal
 
+5. Guillermo por favor no me digas que en el formato para imprimir los numeros de una cifra hay que ponerlos sin el 0 delante
+
 
 
 
