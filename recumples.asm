@@ -130,6 +130,7 @@ imprimeMes:
 ; Salida: pantalla
 ; Afecta: D
 imprimeBCD:
+  ;; TODO: Optimizar esto.
   cmpb #1
   beq iBCD_ano
     ; Día
@@ -206,16 +207,15 @@ programa:
   ; 3-4: ano
 
   ; Bucle para i.
-  pshu #0 ; i = 0
+  
+  lda #1
+  pshu a     ; i = 0
   mbuclei:
-    
 
-    inc -1, u
-    lda -1, u
+    inc ,u
+    lda ,u
     cmpa nCumples
     ble mbuclei
-
-
 
   ; Final del programa
   clra
