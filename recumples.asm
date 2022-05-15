@@ -13,7 +13,7 @@ teclado  .equ 0xFF02
 ano:      .word 0x1969
 mes:      .byte 0x7
 dia:      .byte 0x31
-nCumples: .byte 10
+nCumples: .byte 0x10
 
 enero:       .asciz "enero"
 febrero:     .asciz "febrero"
@@ -106,16 +106,23 @@ imprimeBCD:
   ;; TODO: Optimizar esto.
   cmpb #1
   beq iBCD_ano
+  cmpb #2
+  beq iBCD_i
     ; Día
     lda 1,u
+    cmpa #0x10
+    blo iBCD_menor10
+
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
 
-    lda 1,u
-    anda #0x0f
-    adda #'0
-    sta pantalla
+    iBCD_menor10:
+      lda 1,u
+      anda #0x0f
+      adda #'0
+      sta pantalla
+
     bra iBCD_fin
   iBCD_ano:
     ldd 2,u ;; Dos primeras cifras
@@ -135,6 +142,17 @@ imprimeBCD:
     andb #0x0f
     addb #'0
     stb pantalla
+    bra iBCD_fin
+  iBCD_i:
+    lda 4,u
+    lsra lsra lsra lsra
+    adda #'0
+    sta pantalla
+
+    lda 4,u
+    anda #0x0f
+    adda #'0
+    sta pantalla
 
   iBCD_fin:
     rts
@@ -146,7 +164,7 @@ imprimeBCD:
 ; Afecta: X
 imprimeDe:
   ldx #de
-  bsr imprimeASCII
+  lbsr imprimeASCII
 
   rts
 
@@ -159,13 +177,20 @@ imprimeDe:
 ; Salida: pantalla
 ; Afecta: X, D
 imprime_fecha:
+  ldb #2
+  bsr imprimeBCD
+  ldb #':
+  stb pantalla
+  ldb #' 
+  stb pantalla
+
   ldb #0
   bsr imprimeBCD
   bsr imprimeDe
-  bsr imprimeMes
+  lbsr imprimeMes
   bsr imprimeDe
   ldb #1
-  bsr imprimeBCD
+  lbsr imprimeBCD
   ldb #'\n
   stb pantalla
 
@@ -225,6 +250,7 @@ corregir_mes:
     ;; cuerpo del while
     suba #0x12
     pshs a
+    sta pantalla
     bsr incano
     puls a
 
@@ -330,8 +356,6 @@ sumaano_carry:
 sumaano_ret:
   rts
 
-
-
 programa:
   ; Inicializar stacks.
   lds #0xF000
@@ -374,8 +398,10 @@ programa:
     ; u = 4 + u
     leau 4,u
 
-    inc ,u
     lda ,u
+    inca
+    daa    ; Uso daa pq nunca va a ser mayor que 0x31, y hasta entonces funciona bien.
+    sta ,u
     cmpa nCumples
     bls mbuclei
 
