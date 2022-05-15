@@ -11,8 +11,8 @@ teclado  .equ 0xFF02
 
 ; VARIABLES
 ano:      .word 0x1969
-mes:      .byte 0x7
 dia:      .byte 0x27
+mes:      .byte 0x7
 nCumples: .byte 10
 
 enero:       .asciz "enero"
@@ -80,7 +80,7 @@ imprimeASCII:
 ; Afecta: X, A
 imprimeMes:
   ldx #tablames
-  ldb mes
+  ldb 1,u
   cmpb #0x10
   blt iM_menor10
   subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
@@ -107,31 +107,31 @@ imprimeBCD:
   cmpb #1
   beq iBCD_ano
     ; Día
-    lda dia
+    lda ,u
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
 
-    lda dia
+    lda ,u
     anda #0x0f
     adda #'0
     sta pantalla
     bra iBCD_fin
   iBCD_ano:
-    ldd ano ;; Dos primeras cifras
+    ldd 2,u ;; Dos primeras cifras
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
-    ldd ano
+    ldd 2,u
     anda #0x0f
     adda #'0
     sta pantalla
     
-    ldd ano ;; Dos últimas cifras
+    ldd 2,u ;; Dos últimas cifras
     lsrb lsrb lsrb lsrb
     addb #'0
     stb pantalla
-    ldd ano
+    ldd 2,u
     andb #0x0f
     addb #'0
     stb pantalla
@@ -146,7 +146,6 @@ imprimeBCD:
 ; Afecta: X
 imprimeDe:
   ldx #de
-    pulu x, d
   bsr imprimeASCII
 
   rts
@@ -167,6 +166,8 @@ imprime_fecha:
   bsr imprimeDe
   ldb #1
   bsr imprimeBCD
+  ldb #'\n
+  stb pantalla
 
   rts
 
@@ -234,7 +235,7 @@ corregir_mes:
 ; Salida: los días de febrero en la tabladiasmes
 ; Afecta: D, tabladiasmes
 actualiza_bisiesto:
-  ldd ano ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
+  ldd 2,u ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
           ;; de ano).
 
   ; Si el último bit de la última cifra es 1, no es bisiesto.
@@ -261,13 +262,14 @@ actualiza_bisiesto:
 ; Salida:  a (dia)
 ; Registros afectados: a, b
 corregir_dia:
-  ldx tabladiasmes-1
+  ldd ,u
+  ldx #(tabladiasmes-1)
   cd_while:
+    pshs d
     bsr actualiza_bisiesto
-
+    puls d
     cmpa b, x ; numero de dias del mes en el que estamos
     ble cd_ret
-
 
     suba b, x ; dia -= dias[mes-1]
 
@@ -280,7 +282,45 @@ corregir_dia:
     bra cd_while
 
   cd_ret:
+    sta ,u
     rts
+
+; Función.
+; Suma dos números en BCD.
+; Entrada:
+;          a: primer número
+;          nCumples: segundo numero
+; Registros afectados: a
+; Salida:
+;          a: suma
+suma88:
+  adda nCumples
+  ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 61
+  daa
+  rts
+
+; Función.
+; Suma dos números (8 y 16 bits) en BCD.
+; Entrada:
+;          stack u (año): primer número
+;          nCumples: segundo numero
+; Registros afectados: 
+; Salida:
+;          stack u (año): suma
+sumaano:
+  lda 3,u
+  bsr suma88
+  sta 3,u
+  blo sumaano_carry ; Salta si C=1 (si el daa de suma88 activa el carry).
+  ; lda #0x19 ; Lo mismo que para inc8, creo que no hace falta
+  rts
+sumaano_carry:
+  lda #0x20
+  sta 2,u
+sumaano_ret:
+  rts
+
+
 
 programa:
   ; Inicializar stacks.
@@ -289,8 +329,8 @@ programa:
   ; STACK U    (5, u)
   ; 1: i       (4, u)
   ; 2: ano     (2, u) => 19: 2,u. 69: 3,u.
-  ; 1: dia     (1, u)
-  ; 1: mes     (0, u)
+  ; 1: mes     (1, u)
+  ; 1: dia     (0, u)
 
   ; Bucle para i.
   lda #0
@@ -298,31 +338,33 @@ programa:
   mbuclei:
     ; Cargar dia, mes y año en el stack.
     ldx ano
-    ldd mes     ; Cargo mes y día en d (de tal forma que quedan como en el
+    ldd dia     ; Cargo mes y día en d (de tal forma que quedan como en el
                 ; esquema de arriba.
     pshu x, d
-    
+    ldd ,u
+
     bsr incano  ; año += 1
-    lda 1, u
+    lda 1,u
     bsr inc8    ; mes += 1
-    sta 1, u
+    sta 1,u
     
     bsr corregir_mes
     bsr corregir_dia
-
-    lda 0, u
-    bsr inc8
-    sta 0, u
+    lda ,u
+    lbsr inc8
+    sta ,u
 
     bsr corregir_dia
 
     lbsr imprime_fecha
 
-    ; Hacer pulu de x y d, o hacer u+=3
-    leau 3,u
+    ; Hacer pulu de x y d, o hacer u+=4
+    ; u = 4 + u
+    leau 4,u
 
-    inc 4,u
-    lda 4,u
+    debug8:
+    inc ,u
+    lda ,u
     cmpa nCumples
     ble mbuclei
 
