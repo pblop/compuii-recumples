@@ -13,6 +13,7 @@
 
 5. Guillermo por favor no me digas que en el formato para imprimir los numeros de una cifra hay que ponerlos sin el 0 delante
 
+6. nCumples puede ser BCD?
 
 
 
