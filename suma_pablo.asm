@@ -11,6 +11,8 @@ teclado  .equ 0xFF02
 
 ;; VARIABLES
 
+ano: .byte 0x1
+
 ;; FUNCIONES
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -90,58 +92,83 @@ inc8_segunda:
   clra
 inc8_ret:
   rts
+; Funciona casi bien del todo, falta corregir la tercera. 
+;; Función: inc16.
+;;   Incrementa un año (16 bits), optimizada.
+;; Entrada: d (número a incrementar)
+;; Salida: d
+;; Registros afectados:
+;inc16:
+;  inc 3,u
+;  ldd 2,u
+;  ; pshs d          ; pila [D]
+;  andb #0x0f
+;  cmpb #0x0a
+;  bne inc16_segunda
+;  ldb #6
+;  addb 3, u
+;  stb 3, u
+;inc16_segunda:
+;  cmpb #0xa0
+;  blo inc16_ret
+;  ldb #0x60
+;  addb 3, u
+;  stb 3, u
+;inc16_tercera:
+;  ;lda 2, u
+;  anda #0x0f
+;  cmpa #0x0a
+;  bne inc16_ret
+;  ;ldb 3, u
+;  addb #6
+;  stb 3, u
+;inc16_ret:
+;  rts
 
 ; Función: inc16.
 ;   Incrementa un año (16 bits), optimizada.
-; Entrada: d (número a incrementar)
-; Salida: d
-; Registros afectados:
+; Entrada: año (stack)
+; Salida: año (stack)
+; Registros afectados: a
 inc16:
-  incb
-  ; pshs d          ; pila [D]
-  tfr d,x
-  tfr b,a
-  andb #0x0f
-  cmpb #0x0a
-  bne inc16_segunda
-  ldb #6
-  abx
-  adda #6
-inc16_segunda:
-  cmpa #0xa0
-  blo inc16_ret
-  ldb #0x60
-  abx
-inc16_tercera:
-  tfr x,d
-  anda #0x0f
-  cmpa #0x0a
-  bne inc16_ret
-  tfr x,d
-  adda #6
-  tfr d,x
-inc16_ret:
-  tfr x,d
+  lda 3,u
+  bsr inc8
+  sta 3,u
+  cmpa #0
+  beq inc16_2000
+  ; No debería de hacer falta esta línea.
+  ; lda #0x19
+  rts
+inc16_2000:
+  lda #0x20
+  sta 2,u
   rts
 
-
 programa:
-  lds #0xF000
+  ldu #0xE000
 
-  lda #0x20
-  ldb #0x41
-  bsr suma88  
+  lda #1
+  lda ano
+  lda *ano
+  lda 1,x
+  lda 1,y
+  lda 2,u
+  lda 3,s
+  pshu a
+  ; Cargar dia, mes y año en el stack.
+  ldx #0x1999
+  ldd #0x0721
+  pshu x, d
 
-  ; lda #0x69
-  ; bsr inc8
-
-  ldd #0x1999
+  lda ,u
+  bsr inc8
+  sta ,u
+  lda 1,u
+  bsr inc8
+  sta 1,u
+  
+  nop
   bsr inc16
-
-  ldd #0x1969
-  bsr inc16
-
-
 
   ; Final del programa
   clra

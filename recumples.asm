@@ -11,8 +11,8 @@ teclado  .equ 0xFF02
 
 ; VARIABLES
 ano:      .word 0x1969
-dia:      .byte 0x27
 mes:      .byte 0x7
+dia:      .byte 0x31
 nCumples: .byte 10
 
 enero:       .asciz "enero"
@@ -53,10 +53,10 @@ tabladiasmes:
   .byte 0x30
   .byte 0x31
   .byte 0x31
-  .byte 0x30
-  .byte 0x31
-  .byte 0x30
-  .byte 0x31
+  .byte 0x30       ; 0x9
+  .byte 0x31       ; 0x10
+  .byte 0x30       ; 0x11
+  .byte 0x31       ; 0x12
 
 ; Función.
 ; Imprime la cadena ASCII marcada por X por pantalla.
@@ -80,9 +80,9 @@ imprimeASCII:
 ; Afecta: X, A
 imprimeMes:
   ldx #tablames
-  ldb 1,u
+  ldb 0,u
   cmpb #0x10
-  blt iM_menor10
+  blo iM_menor10
   subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
                    ; 0xA (10) y 0x10 (el número que queremos) para que
                    ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
@@ -107,12 +107,12 @@ imprimeBCD:
   cmpb #1
   beq iBCD_ano
     ; Día
-    lda ,u
+    lda 1,u
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
 
-    lda ,u
+    lda 1,u
     anda #0x0f
     adda #'0
     sta pantalla
@@ -212,20 +212,22 @@ incano_2000:
 
 ; Función.
 ;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
-; Entrada: b (mes) 
-; Salida: b (mes modificado)
+; Entrada: a (mes) 
+; Salida: a (mes modificado)
 ; Afecta: 
 corregir_mes:
-  cmpb #0x12
+  cmpa #0x12
   bhi cm_cuerpowhile
 
   rts 
 
   cm_cuerpowhile:
     ;; cuerpo del while
-    subb #0x12
+    suba #0x12
+    pshs a
     bsr incano
-  
+    puls a
+
     bra corregir_mes
 
 ; Función.
@@ -257,44 +259,52 @@ actualiza_bisiesto:
 
 ; Funcion.
 ; Corregir el dia si nos pasamos de los que puede tener un mes
-; Entrada: a (dia)
-;          b (mes)
-; Salida:  a (dia)
+; Entrada: b (dia)
+;          a (mes)
+; Salida:  b (dia)
 ; Registros afectados: a, b
 corregir_dia:
-  ldd ,u
   ldx #(tabladiasmes-1)
   cd_while:
     pshs d
     bsr actualiza_bisiesto
     puls d
-    cmpa b, x ; numero de dias del mes en el que estamos
-    ble cd_ret
+  
+    ;TODO: ldd
+    ldb 1,u
+    lda ,u
+    cmpa #10
+    blo cd_menor10
 
-    suba b, x ; dia -= dias[mes-1]
-
-    exg a,b   ; 
-    bsr inc8  ; mes++
-    exg b,a   ;
+    suba #(0x10-0xA) ; Igual que en imprimeMes
     
+    cd_menor10:
+      cmpb a, x ; numero de dias del mes en el que estamos
+      bls cd_ret
+    
+      subb a, x ; dia -= dias[mes-1]
+      stb 1,u
+    
+    lda ,u
+    bsr inc8  ; mes++
     bsr corregir_mes
+    sta ,u
 
     bra cd_while
 
   cd_ret:
-    sta ,u
     rts
 
 ; Función.
 ; Suma dos números en BCD.
 ; Entrada:
 ;          a: primer número
-;          nCumples: segundo numero
+;          i: segundo numero
 ; Registros afectados: a
 ; Salida:
 ;          a: suma
 suma88:
-  adda nCumples
+  adda 4,u
   ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 61
   daa
   rts
@@ -329,8 +339,8 @@ programa:
   ; STACK U    (5, u)
   ; 1: i       (4, u)
   ; 2: ano     (2, u) => 19: 2,u. 69: 3,u.
-  ; 1: mes     (1, u)
-  ; 1: dia     (0, u)
+  ; 1: dia     (1, u)
+  ; 1: mes     (0, u)
 
   ; Bucle para i.
   lda #0
@@ -338,35 +348,36 @@ programa:
   mbuclei:
     ; Cargar dia, mes y año en el stack.
     ldx ano
-    ldd dia     ; Cargo mes y día en d (de tal forma que quedan como en el
+    ldd mes     ; Cargo mes y día en d (de tal forma que quedan como en el
                 ; esquema de arriba.
     pshu x, d
-    ldd ,u
 
-    bsr incano  ; año += 1
-    lda 1,u
-    bsr inc8    ; mes += 1
-    sta 1,u
-    
-    bsr corregir_mes
-    bsr corregir_dia
-    lda ,u
-    lbsr inc8
+    bsr sumaano       ; año += i
+    lda ,u            ; mes += i
+    bsr suma88        ;
+    ;sta ,u            ;
+    ds: 
+    bsr corregir_mes  ; corregir_mes()
     sta ,u
-
-    bsr corregir_dia
-
-    lbsr imprime_fecha
+    dcm:
+    bsr corregir_dia  ; corregir_dia()
+    dcd:
+    lda 1,u           ; dia += i
+    lbsr suma88       ;
+    sta 1,u          ;
+    cs2:
+    bsr corregir_dia  ; corregir_dia()
+    dcd2:
+    lbsr imprime_fecha; printf
 
     ; Hacer pulu de x y d, o hacer u+=4
     ; u = 4 + u
     leau 4,u
 
-    debug8:
     inc ,u
     lda ,u
     cmpa nCumples
-    ble mbuclei
+    bls mbuclei
 
   ; Final del programa
   clra
