@@ -196,24 +196,57 @@ imprimeFecha:
 
   rts
 
+; Función.
+; Corrige los meses para que sean válidos (no sean >12), ajustando los años
+; a la vez.
+; Entrada: stack u.
+; Salida:  stack u.
+; Afecta: 
+corregirMes:
+  rts
+
+; Función.
+;
+corregirDia:
+  rts
+
 programa:
   ; Inicializar stacks.
   lds #0xF000
   ldu #0xE000
-  ; STACK U
-  ; 0: i
-  ; 1: dia
-  ; 2: mes
-  ; 3-4: ano
+  ; STACK U    (5, u)
+  ; 1: i       (4, u)
+  ; 2: ano     (2, u)
+  ; 1: mes     (1, u)
+  ; 1: dia     (0, u)
 
   ; Bucle para i.
-  
   lda #1
   pshu a     ; i = 0
   mbuclei:
+    ; Cargar dia, mes y año en el stack.
+    ldx ano
+    ldd mes     ; Cargo mes y día en d (de tal forma que quedan como en el
+                ; esquema de arriba.
+    pshu x, d
 
-    inc ,u
-    lda ,u
+    inc16 2,u  ; año += 1
+    inc8 1,u ; mes += 1
+    
+    bsr corregirMes
+    bsr corregirDia
+
+    inc8 ,u
+
+    bsr corregirDia
+
+    bsr imprimeFecha
+
+    ; Hacer pulu de x y d, o hacer x+=3
+    leau 3,x
+
+    inc 4,u
+    lda 4,u
     cmpa nCumples
     ble mbuclei
 
