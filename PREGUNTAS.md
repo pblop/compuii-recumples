@@ -9,6 +9,8 @@
 
 3. Se puede utilizar la página directa para este ejercicio? Es decir, a la hora de reubicar el código, reubicaríamos también la página directa?
 
+4. Si usamos daa, hace falta usar el de guillermo o podemos usar el normal
+
 
 
 
