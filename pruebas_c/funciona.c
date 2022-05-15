@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char dia = 19;
-char mes = 3;
-short ano = 1920;
+char dia = DIA;
+char mes = MES;
+short ano = ANO;
 char nCumples = 30;
 int i = 0;
 
@@ -25,12 +25,16 @@ void corregirBisiesto()
 
 void MostrarFecha()
 {
-  printf("%02d: %02d  de %s de %04d\n", i, dia, meses[mes - 1], ano);
+  printf("%02d: %02d de %s de %04d\n", i, dia, meses[mes - 1], ano);
 }
 
 // llamamos a esta funcion if(mes == 1 && (dia == 29 || dia == 28))
 void MeCagoEnFebrero()
 {
+  if (i == 30)
+  {
+    return;
+  }
   dia++;
   // printf("dia incrementado: %d\n", dia);
   dia = dia - dias[1];
@@ -43,7 +47,7 @@ void MeCagoEnFebrero()
   // que no lo va a ser porque si enero == 28 enotnces el siguiente si puede 
   // ser febrero y dia == 29
   MostrarFecha();
-  // printf("i incrementado: %d\n", i);
+  // printf("i incremenKtado: %d\n", i);
   dia += 29;
   // printf("dia ajustado: %d\n", dia);
   ano++;
@@ -97,9 +101,21 @@ int main()
           // printf("dia es 29\n");
           MeCagoEnFebrero();
           dia++; // el dia += 29 de la funcion no funciona para bisiestos
+          if (dia > 31)
+          {
+            dia = 1;
+            mes = 4;
+          }
+          
+        } else
+        { // se incrementa como en el bucle
+          dia++;
+          mes++;
+          ano++;
         }
+        
       }
-      else{
+      else if(!(anoBisiesto(ano))){
         // printf("no es bisiesto\n");
         MeCagoEnFebrero();
       }
@@ -109,7 +125,7 @@ int main()
       //funciona.c
       dia++;
       // printf("\n\n");
-      // printf("\n\tdia incrementado: %d",dia);
+      // printf("\n\tdia incrementado: %d\n",dia);
       if (mes == 12)
       {
         // printf("\nhola soy diciembre");
@@ -131,19 +147,41 @@ int main()
       {
         if (dia >= dias[mes + 1 - 1] + 1)
         {
-          // printf("\nNos pasamos de meses.");
-          // printf("\ndia = %d - %d", dia, dias[mes + 1 - 1]);
-          dia = dia - dias[mes + 1 - 1];
-          // printf("= %d", dia);
-          mes++;
-          // printf("\nmes: %d", mes);
+          if (mes == 3) // anterior a febrero
+          {
+            if (anoBisiesto(ano - 1))
+              {
+                // printf("a\n");
+                dia += 29 - 31;
+              } else 
+              {
+                // printf("b\n");
+                dia += 28 - 31;
+                // printf("dia: %d\n", dia);
+              }
+
+              if (dia > 31)
+              {
+                dia = dia - dias[mes + 1 - 1];
+                mes++;
+              }
+          } else
+          {
+            // printf("\nNos pasamos de meses.");
+            // printf("\ndia = %d - %d", dia, dias[mes + 1 - 1]);
+            dia = dia - dias[mes + 1 - 1];
+            // printf("= %d\n", dia);
+            mes++;
+            // printf("\nmes: %d\n", mes);
+          }
+          
         }
         else
         {
-          // printf("\nNo nos pasamos.\ndia = dia + %d - %d",dias[mes - 2], dias[mes - 1]);
+          // printf("\nNo nos pasamos.\ndia = dia + %d - %d\n",dias[mes - 2], dias[mes - 1]);
           if (mes == 1)
           {
-            // printf("\nhola soy enero. No sumo nada porque 31 - 31 es 0");
+            // printf("\nhola soy enero. No sumo nada porque 31 - 31 es 0\n");
             // TODO: mirar a ver si esto pasa en mas meses
             // realemtne pasa cuando el mes anterior y este tienen el mismo numero de dias
             // Ej: diciembre-enero, julio-agosto
@@ -152,12 +190,28 @@ int main()
             // para que de en febrero tenemos que usar 28 dias, no 29
             if (mes == 2)
             {
-              // printf("\nhola soy febrero");
-              dia += 31 - 28;
+              // printf("\nhola soy febrero\n");
+              if (anoBisiesto(ano))
+              {
+                // printf("a\n");
+                dia += 31 - 29;
+              } else 
+              {
+                // printf("b\n");
+                dia += 31 - 28;
+                // printf("dia: %d\n", dia);
+              }
+
+              if (dia > 31)
+              {
+                dia = dia - 31;
+                mes = 3;
+              }
+              
             }else
             {
               dia += dias[mes - 2] - dias[mes - 1];
-              // printf("= %d", dia);
+              // printf("= %d\n", dia);
             }
         }
          }
