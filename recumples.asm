@@ -369,7 +369,7 @@ corregir_dia:
 ;          a: suma
 suma88:
   adda 4,u
-  ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 61
+  ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
   daa
   rts
 
@@ -382,17 +382,21 @@ suma88:
 ; Salida:
 ;          stack u (año): suma
 sumaano:
-  lda 3,u
-  bsr suma88
-  sta 3,u
-  blo sumaano_carry ; Salta si C=1 (si el daa de suma88 activa el carry).
-  ; lda #0x19 ; Lo mismo que para inc8, creo que no hace falta
-  rts
-sumaano_carry:
-  lda #0x20
-  sta 2,u
-sumaano_ret:
-  rts
+  lda #0x0      ; i = 0 para el bucle
+  
+  sa_bucle:
+    cmpa 4,u
+    bhs sa_ret
+
+    pshs a
+    lbsr incano
+    puls a
+
+    lbsr inc8
+    bra sa_bucle  ; while i < nCumples
+  
+  sa_ret:
+    rts
 
 programa:
   ; Inicializar stacks.
