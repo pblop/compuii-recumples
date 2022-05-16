@@ -13,7 +13,7 @@ teclado  .equ 0xFF02
 ano:      .word 0x1969
 mes:      .byte 0x7
 dia:      .byte 0x31
-nCumples: .byte 0x10
+nCumples: .byte 0x30
 
 enero:       .asciz "enero"
 febrero:     .asciz "febrero"
@@ -234,6 +234,23 @@ incano_2000:
   sta 2,u
   rts
 
+; Función
+;   Hace una primitiva corrección de la resta para BCD.
+; Entrada: a
+; Salida:  a
+; Afecta:  a
+daaresta:
+  pshs b
+  tfr a, b
+  andb #0x0f
+  cmpb #0x0a
+  bls daar_fin
+  suba #6
+
+  daar_fin:
+    puls b
+    rts
+
 
 ; Función.
 ;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
@@ -249,8 +266,9 @@ corregir_mes:
   cm_cuerpowhile:
     ;; cuerpo del while
     suba #0x12
+    bsr daaresta
+    
     pshs a
-    sta pantalla
     bsr incano
     puls a
 
@@ -309,7 +327,9 @@ corregir_dia:
       bls cd_ret
     
       subb a, x ; dia -= dias[mes-1]
-      stb 1,u
+      tfr b,a
+      bsr daaresta
+      sta 1,u
     
     lda ,u
     bsr inc8  ; mes++
@@ -367,7 +387,7 @@ programa:
   ; 1: mes     (0, u)
 
   ; Bucle para i.
-  lda #0
+  lda #0x0
   pshu a     ; i = 0
   mbuclei:
     ; Cargar dia, mes y año en el stack.
