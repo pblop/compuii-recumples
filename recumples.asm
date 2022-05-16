@@ -295,6 +295,7 @@ actualiza_bisiesto:
 
   ab_no_bisiesto:
     ldb #0x28
+    bra ab_ret
   ab_si_bisiesto:
     ldb #0x29
   ab_ret:
@@ -325,14 +326,31 @@ corregir_dia:
     cd_menor10:
       cmpb a, x ; numero de dias del mes en el que estamos
       bls cd_ret
-    
-      subb a, x ; dia -= dias[mes-1]
-      tfr b,a
-      bsr daaresta
-      sta 1,u
+       
+      ; Ajuste de la resta.
+      ; sale mal si el último dígito del sustraendo 2 es más grande que el
+      ; último dígito del sustraendo uno.
+      ; Ejemplo: 31-28=08 pero tenía que ser 2.
+      ; En este caso: sustraendo 2: a,x. Sustraendo 1: b
+      pshs d
+      lda a, x
+      anda #0x0f   ; A contiene la última cifra (uc) del sus2.
+      andb #0x0f   ; B contiene la uc del sus1.
+      pshs b
+      cmpa ,s+
+      puls d
+      bls cd_noajustarresta ; Ajustar resta si uc2 > uc1.
+
+      subb #6
+
+      cd_noajustarresta:
+        subb a, x ; dia -= dias[mes-1]
+
+      stb 1,u
+
     
     lda ,u
-    bsr inc8  ; mes++
+    lbsr inc8  ; mes++
     bsr corregir_mes
     sta ,u
 
@@ -399,9 +417,8 @@ programa:
     bsr sumaano       ; año += i
     lda ,u            ; mes += i
     bsr suma88        ;
-    ;sta ,u            ;
     ds: 
-    bsr corregir_mes  ; corregir_mes()
+    lbsr corregir_mes  ; corregir_mes()
     sta ,u
     dcm:
     bsr corregir_dia  ; corregir_dia()
