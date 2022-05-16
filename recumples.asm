@@ -10,9 +10,9 @@ teclado  .equ 0xFF02
 .globl programa
 
 ; VARIABLES
-ano:      .word 0x1969
-mes:      .byte 0x7
-dia:      .byte 0x31
+ano:      .word 0x{ANO}
+mes:      .byte 0x{MES}
+dia:      .byte 0x{DIA}
 nCumples: .byte 0x30
 
 enero:       .asciz "enero"

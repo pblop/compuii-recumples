@@ -8,5 +8,6 @@
 *.lst
 *.tar
 *.zip
+recumples_.asm
 .DS_Store
 .vscode

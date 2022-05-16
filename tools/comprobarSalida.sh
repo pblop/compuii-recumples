@@ -18,11 +18,27 @@ do
     for (( DIA=1; DIA<=dias[$MES-1]; DIA++ ))
     do
       printf "Comprobando: $DIA/$MES/$ANO..."
-      salidacorrecta=$(echo "$DIA $MES $ANO" > tools/comprobacion)
+      salidacorrecta=$(echo "$DIA $MES $ANO" | tools/comprobacion)
       
-      
+      #make DIA=$DIA MES=$MES ANO=$ANO
+      salida=$(make run --silent DIA=$DIA MES=$MES ANO=$ANO 2>/dev/null | grep '^[0-9]')
 
-      salida=$()
+      if [ "$salidacorrecta" == "$salida" ]
+      then
+        printf "✅\n"
+      else
+        printf "❌\n"
+        printf "Esperaba:\n"
+        printf "$salidacorrecta\n"
+        printf "==========================\n"
+        printf "Encontrado:\n"
+        printf "$salida\n"
+        printf "==========================\n"
+        printf "Diferencia:\n"
+        printf "$(diff <(printf "$salidacorrecta\n") <(printf "$salida\n"))\n"
+        exit
+      fi
+
     done
   done
 done
