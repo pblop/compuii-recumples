@@ -25,10 +25,11 @@ jobs:
     - name: Install tools
       if: steps.cache-tools.outputs.cache-hit != 'true'
       run: |
-       wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh
-       chmod +x instaladorcii.sh
-       ./instaladorcii.sh
-       source ~/.bashrc
+        wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh
+        chmod +x instaladorcii.sh
+        ./instaladorcii.sh
 
     - name: Run test
-      run: make test
+      run: |
+        source ~/.bashrc
+        make test
