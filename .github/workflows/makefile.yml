@@ -1,0 +1,24 @@
+name: Tester
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: install 
+      run: |
+       wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh instaladorcii.sh
+       chmod +x instaladorcii.sh
+       ./instaladorcii.sh
+      
+    - name: Install dependencies
+      run: make test
