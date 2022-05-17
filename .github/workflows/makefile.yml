@@ -31,5 +31,4 @@ jobs:
        source ~/.bashrc
 
     - name: Run test
-      if: steps.cache-primes.outputs.cache-hit != 'true'
       run: make test
