@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 gcc tools/comprobacion.c -o tools/comprobacion
+rm -r temp error
 
 function comprobar()
 {
   out=""
   padre=$(pwd)
   # Continuar si no ha habido ningún error en el programa (el archivo error se ha creado)
-  if [ ! -f "${padre}/error" ]
+  if [ ! -e "${padre}/error" ]
   then
     DIA=$1
     MES=$2
@@ -63,6 +64,11 @@ do
 
     for (( DIA=1; DIA<=dias[$MES-1]; DIA++ ))
     do
+      if [ -e "error" ]
+      then
+        exit
+      fi
+
       comprobar $DIA $MES $ANO &
     done
   done
