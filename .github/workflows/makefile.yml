@@ -19,6 +19,7 @@ jobs:
        wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh
        chmod +x instaladorcii.sh
        ./instaladorcii.sh
+       cp ~/bin/* /usr/bin
       
     - name: Install dependencies
       run: make test
