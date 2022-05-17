@@ -15,5 +15,3 @@
 
 6. nCumples puede ser BCD?
 
-
-

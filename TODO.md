@@ -19,3 +19,5 @@
 # OPTIMIZACIONES
 - [ ] Podemos hacer que imprimirBCD sean funciones separadas, en vez de comparar, así nos ahorramos
       código que salta de una subfunción a otra.
+- [ ] Puede ser que podamos generar tabladiasmes con pocas líneas de código. En concreto con menos
+      líneas de las que usamos actualmente, y acceder a ellas con página directa
