@@ -140,9 +140,7 @@ corregir_dia:
     ab_ret:
       stb tabladiasmes+2-1, pcr
     ; Fin de funcion en linea
-    ;TODO: ldd
-    ldb *a_dia
-    lda *a_mes
+    ldd *a_mes
     cmpa #10
     blo cd_menor10
 
