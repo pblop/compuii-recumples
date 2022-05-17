@@ -116,17 +116,13 @@ corregir_mes:
 corregir_dia:
   leax (tabladiasmes-1), pcr
   cd_while:
-    ;TODO: creo que esto no cuenta
-    ; pshs d
     ; Función en linea
     ; Actualiza el valor de la tabla de los días de los meses
     ; en función de si el año actual es bisiesto.
     ; Entrada: nada
     ; Salida: los días de febrero en la tabladiasmes
     ; Afecta: D, tabladiasmes
-    ldd *a_ano ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
-               ;; de ano).
-
+    ldb *a_ano+1 ; solo necesitamos la ultima parte de ano
     ; Si el último bit de la última cifra es 1, no es bisiesto.
     bitb #0b00000001
     bne ab_no_bisiesto
@@ -144,7 +140,6 @@ corregir_dia:
     ab_ret:
       stb tabladiasmes+2-1, pcr
     ; Fin de funcion en linea
-    ; puls d
     ;TODO: ldd
     ldb *a_dia
     lda *a_mes
@@ -218,8 +213,6 @@ incano:
   sta *a_ano+1
   cmpa #0
   beq incano_2000
-  ; No debería de hacer falta esta línea.
-  ; lda #0x19
   rts
 incano_2000:
   lda #0x20
@@ -235,9 +228,8 @@ incano_2000:
 ; Salida:
 ;          a: suma
 suma88:
-  adda *iBCD
-  ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
-  daa
+  adda *iBCD 
+  daa         ; Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
   rts
 
 ; Función.
