@@ -47,6 +47,7 @@ function comprobar()
   fi
 
   echo $out
+
 }
 
 dias=(31 28 31 30 31 30 31 31 30 31 30 31)
@@ -66,13 +67,20 @@ do
     do
       if [ -e "error" ]
       then
-        exit
+        exit -1
       fi
 
       comprobar $DIA $MES $ANO &
+    
     done
   done
 done
+
+wait
+if [ -e "error" ]
+then
+  exit -1
+fi
 
 echo ""
 

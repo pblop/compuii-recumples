@@ -24,5 +24,6 @@ else
   echo "❌ No reubicable"
   echo "$DIFF"
   diff "${1}-100.rst" "${1}-1234.rst" | colordiff
+  exit -1
 fi
 
