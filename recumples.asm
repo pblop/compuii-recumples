@@ -96,9 +96,9 @@ corregir_mes:
       daar_ret:
     ; Fin de la función en línea.
 
-    pshs a
+    sta *a_mes
     bsr incano
-    puls a
+    lda *a_mes
 
     bra corregir_mes
 
@@ -169,7 +169,6 @@ corregir_dia:
     lda *a_mes
     bsr inc8  ; mes++
     bsr corregir_mes
-    sta *a_mes
 
     bra cd_while
 
@@ -272,7 +271,6 @@ programa:
     bsr suma88        ;
     ds: 
     lbsr corregir_mes ; corregir_mes()
-    sta *a_mes
     
     dcm:
     lbsr corregir_dia  ; corregir_dia()
