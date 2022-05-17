@@ -39,18 +39,18 @@ diciembre:   .asciz "diciembre"
 de: .asciz " de "
 
 tablames:
-  .word enero
-  .word febrero
-  .word marzo
-  .word abril
-  .word mayo
-  .word junio
-  .word julio
-  .word agosto
-  .word septiembre ; 0x9
-  .word octubre    ; 0x10
-  .word noviembre  ; 0x11
-  .word diciembre  ; 0x12
+  .byte enero-enero
+  .byte febrero-enero
+  .byte marzo-enero
+  .byte abril-enero
+  .byte mayo-enero
+  .byte junio-enero
+  .byte julio-enero
+  .byte agosto-enero
+  .byte septiembre-enero ; 0x9
+  .byte octubre-enero    ; 0x10
+  .byte noviembre-enero  ; 0x11
+  .byte diciembre-enero  ; 0x12
 
 tabladiasmes:
   .byte 0x31
@@ -87,7 +87,9 @@ imprimeASCII:
 ; Salida: pantalla
 ; Afecta: X, A
 imprimeMes:
+  leay enero, pcr
   leax tablames, pcr
+
   ldb *a_mes
   cmpb #0x10
   blo iM_menor10
@@ -97,8 +99,8 @@ imprimeMes:
                    ; Osea, convertimos el BCD a hexa.
   iM_menor10:
     decb
-    aslb
-    ldx b,x
+    ldb b,x
+    leax b,y
 
   bsr imprimeASCII
   rts
@@ -410,12 +412,6 @@ sumaano:
 programa:
   ; Inicializar stacks.
   lds #0xF000
-  ldu #0xE000
-  ; STACK U    (5, u)
-  ; 1: i       (4, u)
-  ; 2: ano     (2, u) => 19: 2,u. 69: 3,u.
-  ; 1: dia     (1, u)
-  ; 1: mes     (0, u)
 
   ; Bucle para i.
   lda #0
