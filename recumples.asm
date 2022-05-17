@@ -77,6 +77,7 @@ corregir_mes:
   cmpa #0x12
   bhi cm_cuerpowhile
 
+  sta *a_mes
   rts 
 
   cm_cuerpowhile:
