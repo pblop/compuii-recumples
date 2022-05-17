@@ -66,128 +66,6 @@ tabladiasmes:
   .byte 0x30       ; 0x11
   .byte 0x31       ; 0x12
 
-; Función.
-; Imprime la cadena ASCII marcada por X por pantalla.
-; Entrada: X (dirección de la cadena a imprimir)
-; Salida: pantalla
-; Afecta: X, A
-imprimeASCII:
-  iA_bucle:
-    lda ,x+
-    beq iA_acabar
-    sta pantalla
-    bra iA_bucle
-
-  iA_acabar:
-    rts
-
-; Función.
-; Imprime el mes en B por pantalla.
-; Entrada: B (el mes)
-; Salida: pantalla
-; Afecta: X, A
-imprimeMes:
-  leax tablames, pcr
-  ldb *a_mes
-  cmpb #0x10
-  blo iM_menor10
-  subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
-                   ; 0xA (10) y 0x10 (el número que queremos) para que
-                   ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
-                   ; Osea, convertimos el BCD a hexa.
-  iM_menor10:
-    decb
-    aslb
-    ldx b,x
-
-  bsr imprimeASCII
-  rts
-
-; Funcion
-; Imprime la cifra de las decenas de un numero en BCD (byte)
-; Entrada: a
-; Salida: pantalla
-; Afecta:
-
-ImprimeCifra1:
-  lsra lsra lsra lsra
-  adda #'0 ; convertir a caracter
-  sta pantalla;
-  rts
-
-; Funcion
-; Imprime la cifra de las unidades de un numero en BCD (byte)
-; Entrada: a
-; Salida: pantalla
-; Afecta:
-
-ImprimeCifra2:
-  anda #0x0f
-  adda #'0 ; convertir a caracter
-  sta pantalla;
-  rts
-
-; Funcion
-; Imprime la fecha en el formato correcto por la pantalla
-; Entrada: a
-; Salida: pantalla
-; Afecta: 
-ImprimeFecha:
-;; imprimimos i
-  lda *iBCD
-  bsr ImprimeCifra1
-  lda*iBCD
-  bsr ImprimeCifra2
-  lda #':
-  sta pantalla
-  lda #' 
-  sta pantalla
-
-;; imprimimos el dia
-  lda *a_dia
-  cmpa #0x10
-  blo dia_menor10 ; si es menor que diez no se imprime el 0
-
-  bsr ImprimeCifra1
-
-  dia_menor10:
-    lda *a_dia
-    bsr ImprimeCifra2
-
-;; imprimirmos el mes
-  bsr imprimeDe
-  lbsr imprimeMes
-  bsr imprimeDe
-
-;; imprimimos el ano
-  ; imprimimos las dos primeras cifras
-  lda *a_ano
-  bsr ImprimeCifra1
-  lda *a_ano
-  bsr ImprimeCifra2
-  ; imrprimimos las dos ultimas cifras
-  lda *a_ano+1
-  bsr ImprimeCifra1
-  lda *a_ano+1
-  bsr ImprimeCifra2
-
-  lda #'\n
-  sta pantalla
-
-  rts
-
-
-; Función
-; Imprime " de " por pantalla.
-; Entrada: nada
-; Salida: pantalla
-; Afecta: X
-imprimeDe:
-  leax de, pcr
-  lbsr imprimeASCII
-
-  rts
-
 ; Función: inc8.
 ;   Incrementa un número de 8 bits
 ; Entrada: a (número a incrementar)
@@ -412,7 +290,7 @@ programa:
     bsr sumaano       ; año += i
 
     lda *a_mes          ; mes += i
-    bsr suma88        ;
+    bsr suma88          ;
     ds: 
     lbsr corregir_mes ; corregir_mes()
     sta *a_mes
@@ -421,13 +299,13 @@ programa:
     bsr corregir_dia  ; corregir_dia()
     dcd:
     lda *a_dia          ; dia += i
-    lbsr suma88       ;
+    bsr suma88         ;
     sta *a_dia          ;
 
     cs2:
     lbsr corregir_dia  ; corregir_dia()
     dcd2:
-    lbsr ImprimeFecha; printf
+    bsr ImprimeFecha; printf
 
     ; Incrementamos la variable BCD
     lda *iBCD
@@ -437,12 +315,136 @@ programa:
     lda *i
     inca
     sta *i
+    ; Condicion de salida del bucle
     cmpa nCumples
     bls mbuclei
 
   ; Final del programa
   clra
   sta fin
+
+; FUNCIONES PARA IMPRIMIR
+; Función.
+; Imprime la cadena ASCII marcada por X por pantalla.
+; Entrada: X (dirección de la cadena a imprimir)
+; Salida: pantalla
+; Afecta: X, A
+imprimeASCII:
+  iA_bucle:
+    lda ,x+
+    beq iA_acabar
+    sta pantalla
+    bra iA_bucle
+
+  iA_acabar:
+    rts
+
+; Función.
+; Imprime el mes en B por pantalla.
+; Entrada: B (el mes)
+; Salida: pantalla
+; Afecta: X, A
+imprimeMes:
+  leax tablames, pcr
+  ldb *a_mes
+  cmpb #0x10
+  blo iM_menor10
+  subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
+                   ; 0xA (10) y 0x10 (el número que queremos) para que
+                   ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
+                   ; Osea, convertimos el BCD a hexa.
+  iM_menor10:
+    decb
+    aslb
+    ldx b,x
+
+  bsr imprimeASCII
+  rts
+
+; Funcion
+; Imprime la cifra de las decenas de un numero en BCD (byte)
+; Entrada: a
+; Salida: pantalla
+; Afecta:
+
+ImprimeCifra1:
+  lsra lsra lsra lsra
+  adda #'0 ; convertir a caracter
+  sta pantalla;
+  rts
+
+; Funcion
+; Imprime la cifra de las unidades de un numero en BCD (byte)
+; Entrada: a
+; Salida: pantalla
+; Afecta:
+
+ImprimeCifra2:
+  anda #0x0f
+  adda #'0 ; convertir a caracter
+  sta pantalla;
+  rts
+
+; Funcion
+; Imprime la fecha en el formato correcto por la pantalla
+; Entrada: a
+; Salida: pantalla
+; Afecta: 
+ImprimeFecha:
+;; imprimimos i
+  lda *iBCD
+  bsr ImprimeCifra1
+  lda*iBCD
+  bsr ImprimeCifra2
+  lda #':
+  sta pantalla
+  lda #' 
+  sta pantalla
+
+;; imprimimos el dia
+  lda *a_dia
+  cmpa #0x10
+  blo dia_menor10 ; si es menor que diez no se imprime el 0
+
+  bsr ImprimeCifra1
+
+  dia_menor10:
+    lda *a_dia
+    bsr ImprimeCifra2
+
+;; imprimirmos el mes
+  bsr imprimeDe
+  bsr imprimeMes
+  bsr imprimeDe
+
+;; imprimimos el ano
+  ; imprimimos las dos primeras cifras
+  lda *a_ano
+  bsr ImprimeCifra1
+  lda *a_ano
+  bsr ImprimeCifra2
+  ; imrprimimos las dos ultimas cifras
+  lda *a_ano+1
+  bsr ImprimeCifra1
+  lda *a_ano+1
+  bsr ImprimeCifra2
+
+  lda #'\n
+  sta pantalla
+
+  rts
+
+
+; Función
+; Imprime " de " por pantalla.
+; Entrada: nada
+; Salida: pantalla
+; Afecta: X
+imprimeDe:
+  leax de, pcr
+  bsr imprimeASCII
+
+  rts
 
 ; Iniciar el programa en 'programa'
 .org 0xFFFE
