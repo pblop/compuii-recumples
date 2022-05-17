@@ -32,8 +32,8 @@ tam: recumples.s19
 	@echo $(shell cat recumples.s19 | ./tools/calculaLongitud.sh) bytes
 testReubic: recumples.rel
 	./tools/comprobarReubicable.sh recumples
-testCorrecto: recumples.asm
-	./tamano.py
+testCorrecto: recumples.s19
+	./tools/comprobarSalida.sh
 test: testReubic testCorrecto
 	
 

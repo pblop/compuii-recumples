@@ -5,11 +5,8 @@ fin      .equ 0xFF01
 pantalla .equ 0xFF00
 teclado  .equ 0xFF02
 
-; DIRECTIVAS
-.org 0x100
-.globl programa
-
-; VARIABLES
+; VARIABLES AUX
+.org 0x80
 ano:      .word 0x{ANO}
 mes:      .byte 0x{MES}
 dia:      .byte 0x{DIA}
@@ -28,6 +25,14 @@ octubre:     .asciz "octubre"
 noviembre:   .asciz "noviembre"
 diciembre:   .asciz "diciembre"
 
+de: .asciz " de "
+
+; DIRECTIVAS
+.area _CODE (ABS)
+.org 0x100
+.globl programa
+
+; VARIABLES
 tablames:
   .word enero
   .word febrero
@@ -41,8 +46,6 @@ tablames:
   .word octubre    ; 0x10
   .word noviembre  ; 0x11
   .word diciembre  ; 0x12
-
-de: .asciz " de "
 
 tabladiasmes:
   .byte 0x31
@@ -79,7 +82,7 @@ imprimeASCII:
 ; Salida: pantalla
 ; Afecta: X, A
 imprimeMes:
-  ldx #tablames
+  leax tablames, pcr
   ldb 0,u
   cmpb #0x10
   blo iM_menor10
@@ -299,7 +302,7 @@ actualiza_bisiesto:
   ab_si_bisiesto:
     ldb #0x29
   ab_ret:
-    stb tabladiasmes+2-1
+    stb tabladiasmes+2-1, pcr
     rts
 
 ; Funcion.
@@ -309,7 +312,7 @@ actualiza_bisiesto:
 ; Salida:  b (dia)
 ; Registros afectados: a, b
 corregir_dia:
-  ldx #(tabladiasmes-1)
+  leax (tabladiasmes-1), pcr
   cd_while:
     pshs d
     bsr actualiza_bisiesto
