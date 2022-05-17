@@ -31,5 +31,4 @@ jobs:
 
     - name: Run test
       run: |
-        source ~/.bashrc
-        make test
+        PATH="$PATH:/home/runner/bin" test
