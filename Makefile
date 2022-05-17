@@ -18,12 +18,15 @@ recumples.rel: clean recumples_.asm
 recumples.s19: recumples.rel
 	aslink -s recumples.rel
 
+
 # Recumples con simbolos
 recumples_s.rel: clean recumples_.asm
 	as6809 -a -o recumples_s.rel recumples_.asm
 recumples_s.s19: recumples_s.rel
 	aslink -s -m -w recumples_s.rel
 
+lst: recumples_.asm
+	as6809 -l recumples.lst recumples_.asm
 run: recumples.s19
 	m6809-run -C recumples.s19
 debug: recumples_s.s19
@@ -39,5 +42,5 @@ test: testReubic testCorrecto
 
 
 clean:
-	rm -f recumples_.asm recumples.rel recumples.s19 recumples_s.map recumples_s.rel recumples_s.s19 recumples.lst 
+	rm -f recumples_.asm *.rel *.s19 *.map *.lst 
 
