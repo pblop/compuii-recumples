@@ -97,9 +97,7 @@ corregir_mes:
       daar_ret:
     ; Fin de la función en línea.
 
-    sta *a_mes
     bsr incano
-    lda *a_mes
 
     bra corregir_mes
 
@@ -201,16 +199,22 @@ inc8_ret:
 ; Salida: año (stack)
 ; Registros afectados: a
 incano:
+  pshs a
+
   lda *a_ano+1
   bsr inc8
   sta *a_ano+1
   cmpa #0
   beq incano_2000
-  rts
-incano_2000:
-  lda #0x20
-  sta *a_ano
-  rts
+  bra incano_ret
+  
+  incano_2000:
+    lda #0x20
+    sta *a_ano
+
+  incano_ret:
+    puls a
+    rts
 
 ; Función.
 ; Suma dos números en BCD.
@@ -228,11 +232,11 @@ suma88:
 ; Función.
 ; Suma dos números (8 y 16 bits) en BCD.
 ; Entrada:
-;          stack u (año): primer número
+;          a_año: primer número
 ;          nCumples: segundo numero
 ; Registros afectados: 
 ; Salida:
-;          stack u (año): suma
+;          a_año: suma
 sumaano:
   lda #0x0      ; i = 0 para el bucle
   
@@ -240,9 +244,7 @@ sumaano:
     cmpa *iBCD
     bhs sa_ret
 
-    pshs a
     bsr incano
-    puls a
 
     bsr inc8
     bra sa_bucle  ; while i < nCumples
