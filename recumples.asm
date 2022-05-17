@@ -68,23 +68,6 @@ tabladiasmes:
   .byte 0x30       ; 0x11
   .byte 0x31       ; 0x12
 
-; Función
-;   Hace una primitiva corrección de la resta para BCD.
-; Entrada: a
-; Salida:  a
-; Afecta:  a
-daaresta:
-  ; pshs b
-  tfr a, b
-  andb #0x0f      ; Comparamos las unidades de un sustraendo con las del otro. 
-  cmpb #0x0a      ; Si el numero de las unidades del primero es menor que el del segundo, hacemos el agosto
-  bls daar_fin    ; Ej: cuando restamos 30 no hacemos ajuste, porque 0 es menor que todos los demas numeros
-  suba #6         ; pero cuando restamos 28 hacemos ajuste para todos menor los que acaban en 8 o 9.
-
-  daar_fin:
-    ; puls b
-    rts
-
 ; Función.
 ;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
 ; Entrada: a (mes) 
@@ -99,8 +82,20 @@ corregir_mes:
   cm_cuerpowhile:
     ;; cuerpo del while
     suba #0x12
-    bsr daaresta
     
+    ; Función en línea
+    ;   Hace una primitiva corrección de la resta para BCD.
+    ; Entrada: a
+    ; Salida:  a
+    ; Afecta:  a
+      tfr a, b
+      andb #0x0f      ; Comparamos las unidades de un sustraendo con las del otro. 
+      cmpb #0x0a      ; Si el numero de las unidades del primero es menor que el del segundo, hacemos el agosto
+      bls daar_ret    ; Ej: cuando restamos 30 no hacemos ajuste, porque 0 es menor que todos los demas numeros
+      suba #6         ; pero cuando restamos 28 hacemos ajuste para todos menor los que acaban en 8 o 9.
+      daar_ret:
+    ; Fin de la función en línea.
+
     pshs a
     bsr incano
     puls a
@@ -122,23 +117,23 @@ corregir_dia:
     ; Entrada: nada
     ; Salida: los días de febrero en la tabladiasmes
     ; Afecta: D, tabladiasmes
-    ldb *a_ano+1 ; solo necesitamos la ultima parte de ano
-    ; Si el último bit de la última cifra es 1, no es bisiesto.
-    bitb #0b00000001
-    bne ab_no_bisiesto
+      ldb *a_ano+1 ; solo necesitamos la ultima parte de ano
+      ; Si el último bit de la última cifra es 1, no es bisiesto.
+      bitb #0b00000001
+      bne ab_no_bisiesto
 
-    andb #0b00010010
-    beq ab_si_bisiesto
-    cmpb #0b00010010
-    beq ab_si_bisiesto
+      andb #0b00010010
+      beq ab_si_bisiesto
+      cmpb #0b00010010
+      beq ab_si_bisiesto
 
-    ab_no_bisiesto:
-      ldb #0x28
-      bra ab_ret
-    ab_si_bisiesto:
-      ldb #0x29
-    ab_ret:
-      stb tabladiasmes+2-1, pcr
+      ab_no_bisiesto:
+        ldb #0x28
+        bra ab_ret
+      ab_si_bisiesto:
+        ldb #0x29
+      ab_ret:
+        stb tabladiasmes+2-1, pcr
     ; Fin de funcion en linea
     ldd *a_mes
     cmpa #10
