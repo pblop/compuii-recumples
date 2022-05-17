@@ -6,11 +6,22 @@ pantalla .equ 0xFF00
 teclado  .equ 0xFF02
 
 ; VARIABLES AUX
-.org 0x80
+i        .equ 0x80
+a_ano    .equ 0x81
+a_mes    .equ 0x83
+a_dia    .equ 0x84
+iBCD     .equ 0x85
+
+; DIRECTIVAS
+.area _CODE (ABS)
+.org 0x100
+.globl programa
+
+; VARIABLES
 ano:      .word 0x{ANO}
-mes:      .byte 0x{MES}
-dia:      .byte 0x{DIA}
-nCumples: .byte 0x30
+mes:      .word 0x{MES}
+dia:      .word 0x{DIA}
+nCumples: .byte 30
 
 enero:       .asciz "enero"
 febrero:     .asciz "febrero"
@@ -27,12 +38,6 @@ diciembre:   .asciz "diciembre"
 
 de: .asciz " de "
 
-; DIRECTIVAS
-.area _CODE (ABS)
-.org 0x100
-.globl programa
-
-; VARIABLES
 tablames:
   .word enero
   .word febrero
@@ -83,7 +88,7 @@ imprimeASCII:
 ; Afecta: X, A
 imprimeMes:
   leax tablames, pcr
-  ldb 0,u
+  ldb *a_mes
   cmpb #0x10
   blo iM_menor10
   subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
@@ -112,7 +117,7 @@ imprimeBCD:
   cmpb #2
   beq iBCD_i
     ; Día
-    lda 1,u
+    lda *a_dia
     cmpa #0x10
     blo iBCD_menor10
 
@@ -121,38 +126,38 @@ imprimeBCD:
     sta pantalla
 
     iBCD_menor10:
-      lda 1,u
+      lda *a_dia
       anda #0x0f
       adda #'0
       sta pantalla
 
     bra iBCD_fin
   iBCD_ano:
-    ldd 2,u ;; Dos primeras cifras
+    ldd *a_ano ;; Dos primeras cifras
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
-    ldd 2,u
+    ldd *a_ano
     anda #0x0f
     adda #'0
     sta pantalla
     
-    ldd 2,u ;; Dos últimas cifras
+    ldd *a_ano ;; Dos últimas cifras
     lsrb lsrb lsrb lsrb
     addb #'0
     stb pantalla
-    ldd 2,u
+    ldd *a_ano
     andb #0x0f
     addb #'0
     stb pantalla
     bra iBCD_fin
   iBCD_i:
-    lda 4,u
+    lda *iBCD
     lsra lsra lsra lsra
     adda #'0
     sta pantalla
 
-    lda 4,u
+    lda *iBCD
     anda #0x0f
     adda #'0
     sta pantalla
@@ -166,7 +171,7 @@ imprimeBCD:
 ; Salida: pantalla
 ; Afecta: X
 imprimeDe:
-  ldx #de
+  leax de, pcr
   lbsr imprimeASCII
 
   rts
@@ -224,9 +229,9 @@ inc8_ret:
 ; Salida: año (stack)
 ; Registros afectados: a
 incano:
-  lda 3,u
+  lda *a_ano+1
   bsr inc8
-  sta 3,u
+  sta *a_ano+1
   cmpa #0
   beq incano_2000
   ; No debería de hacer falta esta línea.
@@ -234,7 +239,7 @@ incano:
   rts
 incano_2000:
   lda #0x20
-  sta 2,u
+  sta *a_ano
   rts
 
 ; Función
@@ -284,8 +289,8 @@ corregir_mes:
 ; Salida: los días de febrero en la tabladiasmes
 ; Afecta: D, tabladiasmes
 actualiza_bisiesto:
-  ldd 2,u ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
-          ;; de ano).
+  ldd *a_ano ;; TODO: Posiblemente optimizable (a lo mejor haciendo un ldb con sólo el último byte 
+             ;; de ano).
 
   ; Si el último bit de la última cifra es 1, no es bisiesto.
   bitb #0b00000001
@@ -314,13 +319,14 @@ actualiza_bisiesto:
 corregir_dia:
   leax (tabladiasmes-1), pcr
   cd_while:
+    ;TODO: creo que esto no cuenta
     pshs d
     bsr actualiza_bisiesto
     puls d
   
     ;TODO: ldd
-    ldb 1,u
-    lda ,u
+    ldb *a_dia
+    lda *a_mes
     cmpa #10
     blo cd_menor10
 
@@ -349,13 +355,13 @@ corregir_dia:
       cd_noajustarresta:
         subb a, x ; dia -= dias[mes-1]
 
-      stb 1,u
+      stb *a_dia
 
     
-    lda ,u
+    lda *a_mes
     lbsr inc8  ; mes++
     bsr corregir_mes
-    sta ,u
+    sta *a_mes
 
     bra cd_while
 
@@ -371,7 +377,7 @@ corregir_dia:
 ; Salida:
 ;          a: suma
 suma88:
-  adda 4,u
+  adda *iBCD
   ;bsr daa ; TODO: Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
   daa
   rts
@@ -388,7 +394,7 @@ sumaano:
   lda #0x0      ; i = 0 para el bucle
   
   sa_bucle:
-    cmpa 4,u
+    cmpa *iBCD
     bhs sa_ret
 
     pshs a
@@ -412,40 +418,45 @@ programa:
   ; 1: mes     (0, u)
 
   ; Bucle para i.
-  lda #0x0
-  pshu a     ; i = 0
+  lda #0
+  sta *i     ; i = 0
   mbuclei:
-    ; Cargar dia, mes y año en el stack.
-    ldx ano
-    ldd mes     ; Cargo mes y día en d (de tal forma que quedan como en el
-                ; esquema de arriba.
-    pshu x, d
+    ; Cargar dia, mes y año en nuestras variables auxiliares (con las que trabajamos).
+    ldd ano
+    std *a_ano
+    ldb mes+1
+    stb *a_mes
+    ldb dia+1
+    stb *a_dia
 
     bsr sumaano       ; año += i
-    lda ,u            ; mes += i
+
+    lda *a_mes          ; mes += i
     bsr suma88        ;
     ds: 
-    lbsr corregir_mes  ; corregir_mes()
-    sta ,u
+    lbsr corregir_mes ; corregir_mes()
+    sta *a_mes
+    
     dcm:
     bsr corregir_dia  ; corregir_dia()
     dcd:
-    lda 1,u           ; dia += i
+    lda *a_dia          ; dia += i
     lbsr suma88       ;
-    sta 1,u          ;
+    sta *a_dia          ;
+
     cs2:
-    bsr corregir_dia  ; corregir_dia()
+    lbsr corregir_dia  ; corregir_dia()
     dcd2:
     lbsr imprime_fecha; printf
 
-    ; Hacer pulu de x y d, o hacer u+=4
-    ; u = 4 + u
-    leau 4,u
-
-    lda ,u
+    ; Incrementamos la variable BCD
+    lda *iBCD
+    lbsr inc8
+    sta *iBCD
+    ; Incrementamos la variable hexa
+    lda *i
     inca
-    daa    ; Uso daa pq nunca va a ser mayor que 0x31, y hasta entonces funciona bien.
-    sta ,u
+    sta *i
     cmpa nCumples
     bls mbuclei
 
