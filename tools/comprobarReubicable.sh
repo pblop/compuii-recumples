@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 # recumples.rel should already exist (required by makefile)
-aslink -s -b _CODE=0x100 "${1}-100.s19" "${1}.rel" > /dev/null
-aslink -s -b _CODE=0x1234 "${1}-1234.s19" "${1}.rel" > /dev/null
+cp "${1}.rel" "${1}-100.rel"
+cp "${1}.lst" "${1}-100.lst"
+cp "${1}.rel" "${1}-1234.rel"
+cp "${1}.lst" "${1}-1234.lst"
+aslink -s -b _CODE=0x100  -u "${1}-100.rel" > /dev/null
+aslink -s -b _CODE=0x1234 -u "${1}-1234.rel" > /dev/null
 
 B100=$(./tools/muestraBytes.sh "${1}-100.s19")
 B1234=$(./tools/muestraBytes.sh "${1}-1234.s19")
@@ -19,5 +23,6 @@ if [ $? -eq 0 ]; then
 else
   echo "❌ No reubicable"
   echo "$DIFF"
+  diff "${1}-100.rst" "${1}-1234.rst" | colordiff
 fi
 
