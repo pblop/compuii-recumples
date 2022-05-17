@@ -8,18 +8,27 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     
-    - name: install 
+    - name: Cache
+      id: cache-tools
+      uses: actions/cache@v3.0.2
+      with:
+        path: |
+          ~/bin/*
+          ~/.bashrc
+        key: ${{ runner.os }}-tools
+      
+    - name: Install tools
+      if: steps.cache-tools.outputs.cache-hit != 'true'
       run: |
        wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh
        chmod +x instaladorcii.sh
        ./instaladorcii.sh
-       cp ~/bin/* /usr/bin
-      
-    - name: Install dependencies
+       source ~/.bashrc
+
+    - name: Run test
       run: make test
