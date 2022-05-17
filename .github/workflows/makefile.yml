@@ -16,7 +16,7 @@ jobs:
     
     - name: install 
       run: |
-       wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh instaladorcii.sh
+       wget http://avellano.usal.es/~compii/INSTALADOR/instaladorcii.sh
        chmod +x instaladorcii.sh
        ./instaladorcii.sh
       
