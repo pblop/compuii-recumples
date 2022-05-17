@@ -38,6 +38,8 @@ diciembre:   .asciz "diciembre"
 
 de: .asciz " de "
 
+; Guarda la dirección de cada una de las cadenas de caracteres
+; con respecto a enero.
 tablames:
   .byte enero-enero
   .byte febrero-enero
@@ -98,11 +100,13 @@ imprimeMes:
                    ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
                    ; Osea, convertimos el BCD a hexa.
   iM_menor10:
-    decb
-    ldb b,x
-    leax b,y
+    decb           ; Convierto el mes (empieza en 1) en un índice para acceder a la lista (empieza en 0).
+    ldb b,x        ; Utilizo este índice para acceder a tablames y conseguir el índice sobre enero en el
+                   ; que se encuentra la cadena del nombre del mes. Guardo este índice en b.
+    leax b,y       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
+                   ; en la que empieza la cadena del nombre del mes en x.
 
-  bsr imprimeASCII
+  bsr imprimeASCII ; Imprimo la cadena guardada en x.
   rts
 
 
