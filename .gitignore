@@ -6,6 +6,7 @@
 *.s19
 *.map
 *.lst
+*.rst
 *.tar
 *.zip
 recumples_.asm

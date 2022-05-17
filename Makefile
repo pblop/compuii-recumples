@@ -33,7 +33,7 @@ debug: recumples_s.s19
 	m6809-run -d -C recumples_s.s19
 tam: recumples.s19
 	@echo $(shell cat recumples.s19 | ./tools/calculaLongitud.sh) bytes
-testReubic: recumples.rel
+testReubic: recumples.rel lst
 	./tools/comprobarReubicable.sh recumples
 testCorrecto: recumples.s19
 	./tools/comprobarSalida.sh

@@ -111,65 +111,69 @@ imprimeMes:
 
 
 ; Función.
-; Imprime el día o el año (en BCD), en función del
-; valor de B (si 0, día; si 1, año).
-; Entrada: B: 0 si dia, 1 si año
+;   Imprime la cifra de las decenas de un numero en BCD (byte)
+; Entrada: a
 ; Salida: pantalla
-; Afecta: D
-imprimeBCD:
-  ;; TODO: Optimizar esto.
-  cmpb #1
-  beq iBCD_ano
-  cmpb #2
-  beq iBCD_i
-    ; Día
-    lda *a_dia
-    cmpa #0x10
-    blo iBCD_menor10
+; Afecta: a
+imprime_cifra1:
+  lsra lsra lsra lsra
+  adda #'0 
+  sta pantalla
+  rts
 
-    lsra lsra lsra lsra
-    adda #'0
-    sta pantalla
+; Función.
+;   Imprime la cifra de las unidades de un numero en BCD (byte)
+; Entrada: a
+; Salida: pantalla
+; Afecta: a
+imprime_cifra2:
+  anda #0x0f
+  adda #'0
+  sta pantalla
+  rts
 
-    iBCD_menor10:
-      lda *a_dia
-      anda #0x0f
-      adda #'0
-      sta pantalla
+; Funcion
+; Imprime la fecha en el formato correcto por la pantalla
+; Entrada: a
+; Salida: pantalla
+; Afecta: a
+imprime_fecha:
+  lda *iBCD           ; Imprime i con el formato %02d
+  bsr imprime_cifra1
+  lda *iBCD
+  bsr imprime_cifra2
+  lda #':             ; Imprime ': '
+  sta pantalla 
+  lda #' 
+  sta pantalla
 
-    bra iBCD_fin
-  iBCD_ano:
-    ldd *a_ano ;; Dos primeras cifras
-    lsra lsra lsra lsra
-    adda #'0
-    sta pantalla
-    ldd *a_ano
-    anda #0x0f
-    adda #'0
-    sta pantalla
-    
-    ldd *a_ano ;; Dos últimas cifras
-    lsrb lsrb lsrb lsrb
-    addb #'0
-    stb pantalla
-    ldd *a_ano
-    andb #0x0f
-    addb #'0
-    stb pantalla
-    bra iBCD_fin
-  iBCD_i:
-    lda *iBCD
-    lsra lsra lsra lsra
-    adda #'0
-    sta pantalla
+  lda *a_dia          ; Imprimimos a_dia con el formato %d
+  cmpa #0x10          ;
+  blo if_menor10      ;   Si a_dia < 10, no imprimimos la primera cifra.
 
-    lda *iBCD
-    anda #0x0f
-    adda #'0
-    sta pantalla
+  bsr imprime_cifra1
+  if_menor10:
+    lda *a_dia        ;   Segunda cifra de a_dia
+    bsr imprime_cifra2
 
-  iBCD_fin:
-    rts
+  bsr imprimeDe       ; Imprimimos el primer 
+  bsr imprimeMes
+  bsr imprimeDe
+
+  lda *a_ano          ; Imprimimos a_ano con el formato %d
+  bsr imprime_cifra1  ; Aquí la primera cifra
+  lda *a_ano
+  bsr imprime_cifra2  ; Aquí la segunda cifra
+  lda *a_ano+1
+  bsr imprime_cifra1  ; Aquí la tercera cifra
+  lda *a_ano+1
+  bsr imprime_cifra2  ; Aquí la cuerta cifra
+
+  lda #'\n
+  sta pantalla
+
+  rts
+
 
 ; Función
 ; Imprime " de " por pantalla.
@@ -179,34 +183,6 @@ imprimeBCD:
 imprimeDe:
   leax de, pcr
   lbsr imprimeASCII
-
-  rts
-
-; Función.
-; Imprime una fecha en el fomato correcto por pantalla. 
-; Entrada:
-;          X (año (BCD))
-;          A (mes (BCD))
-;          B (día (BCD))
-; Salida: pantalla
-; Afecta: X, D
-imprime_fecha:
-  ldb #2
-  bsr imprimeBCD
-  ldb #':
-  stb pantalla
-  ldb #' 
-  stb pantalla
-
-  ldb #0
-  bsr imprimeBCD
-  bsr imprimeDe
-  lbsr imprimeMes
-  bsr imprimeDe
-  ldb #1
-  lbsr imprimeBCD
-  ldb #'\n
-  stb pantalla
 
   rts
 
@@ -422,11 +398,11 @@ programa:
   sta *i     ; i = 0
   mbuclei:
     ; Cargar dia, mes y año en nuestras variables auxiliares (con las que trabajamos).
-    ldd ano
+    ldd ano, pcr
     std *a_ano
-    ldb mes+1
+    ldb mes+1, pcr
     stb *a_mes
-    ldb dia+1
+    ldb dia+1, pcr
     stb *a_dia
 
     bsr sumaano       ; año += i
@@ -457,7 +433,7 @@ programa:
     lda *i
     inca
     sta *i
-    cmpa nCumples
+    cmpa nCumples, pcr
     bls mbuclei
 
   ; Final del programa
