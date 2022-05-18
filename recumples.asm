@@ -25,6 +25,10 @@ mes:      .word 0x{MES}
 dia:      .word 0x{DIA}
 nCumples: .byte 30
 
+; Lista que guarda las cadenas de texto de los nombres de los meses.
+; Guardamos un byte 0 al comienzo de la misma porque los meses están indizados en 1,
+; y a la hora de buscar, es como restarle 1 al mes, pero ocupa menos que mover la
+; comprobación de imprimeMes arriba y hacer un bra abajo hacia la comprobación.
 tablacadenas: .byte 0
   enero:      .asciz "enero"
   febrero:    .asciz "febrero"
@@ -108,7 +112,7 @@ corregir_dia:
         andb #0x0f   ; B contiene la uc del sus1.
 
         pshs b       ; Comparo a con b
-        cmpa ,s+     ;     ;
+        cmpa ,s+     ; 
         
         puls d
       bls cd_noajustarresta ; Ajustar resta si uc2 > uc1.
@@ -192,7 +196,6 @@ incano:
   lda *a_ano_segunda
   bsr inc8
   sta *a_ano_segunda
-  cmpa #0
   beq incano_2000
   bra incano_ret
   
