@@ -329,8 +329,7 @@ imprimeMes:
     leax b,y       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
                    ; en la que empieza la cadena del nombre del mes en x.
 
-  bsr imprimeASCII ; Imprimo la cadena guardada en x.
-  rts
+  ;bra imprimeASCII ; Imprimo la cadena guardada en x.
 
 ; Función.
 ; Imprime la cadena ASCII marcada por X por pantalla.
@@ -397,9 +396,8 @@ imprime_fecha:
 de: .asciz " de "
 imprimeDe:
   leax de, pcr
-  bsr imprimeASCII
+  bra imprimeASCII
 
-  rts
 
 ; Función.
 ;   Imprime la cifra de las decenas de un numero en BCD (byte)
