@@ -396,7 +396,7 @@ imprime_fecha:
 ; Entrada: nada
 ; Salida: pantalla
 ; Afecta: X
-de: .asciz "de "
+de: .asciz " de "
 imprimeDe:
   leax de, pcr
   bra imprimeASCII
