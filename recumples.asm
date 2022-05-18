@@ -10,8 +10,8 @@ i        .equ 0x80
 a_ano    .equ 0x81
 a_ano_primera .equ 0x81
 a_ano_segunda .equ 0x82
-a_mes    .equ 0x83
-a_dia    .equ 0x84
+a_dia    .equ 0x83
+a_mes    .equ 0x84
 iBCD     .equ 0x85
 
 ; DIRECTIVAS
@@ -59,6 +59,31 @@ tabladiasmes:
   .byte 0x30       ; 0x11
   .byte 0x31       ; 0x12
 
+; Función
+; Ajuste de la resta.
+; Problema:
+;    La resta sale mal si el último dígito del sustraendo 2 es más grande que el
+;    último dígito del sustraendo uno.
+;    Ejemplo: 31-28=08 pero tenía que ser 2.
+; Entrada: sustraendo 1: a, sustraendo 2: b
+ajusteresta:
+  pshs d
+    anda #0x0f   ; A contiene la última cifra (uc) del sus1.
+    andb #0x0f   ; B contiene la uc del sus2.
+
+    pshs a       ; Comparo b con a
+    cmpb ,s+     ; 
+    
+  puls d
+  bls ar_noajustarresta ; Ajustar resta si uc2 > uc1.
+
+  suba #6
+
+  ar_noajustarresta:
+    rts
+
+
+
 ; Funcion.
 ; Corregir el dia si nos pasamos de los que puede tener un mes
 ; Entrada: a_dia, a_mes 
@@ -91,38 +116,22 @@ corregir_dia:
       ab_ret:
         stb 2,x
     ; Fin de funcion en linea
-    ldd *a_mes ; Guardamos el día en b, y el mes en a
-    cmpa #10
+    ldd *a_dia ; Guardamos el día en a, y el mes en b
+    cmpb #10
     blo cd_menor10
 
-    suba #(0x10-0xA) ; Igual que en imprimeMes
+    subb #(0x10-0xA) ; Igual que en imprimeMes
     
     cd_menor10:
-      cmpb a, x ; numero de dias del mes en el que estamos
+      cmpa b, x ; numero de dias del mes en el que estamos
       bls cd_ret
-       
-      ; Ajuste de la resta.
-      ; sale mal si el último dígito del sustraendo 2 es más grande que el
-      ; último dígito del sustraendo uno.
-      ; Ejemplo: 31-28=08 pero tenía que ser 2.
-      ; En este caso: sustraendo 2: a,x. Sustraendo 1: b
-      pshs d
-        lda a, x
-        anda #0x0f   ; A contiene la última cifra (uc) del sus2.
-        andb #0x0f   ; B contiene la uc del sus1.
+      
+      ldb b, x  ; b = dias[mes-1]
+      pshs b
+      bsr ajusteresta
+      suba ,s+  ; dia -= dias[mes-1]
 
-        pshs b       ; Comparo a con b
-        cmpa ,s+     ; 
-        
-        puls d
-      bls cd_noajustarresta ; Ajustar resta si uc2 > uc1.
-
-      subb #6
-
-      cd_noajustarresta:
-        subb a, x ; dia -= dias[mes-1]
-
-      stb *a_dia
+      sta *a_dia
 
     lda *a_mes
     bsr inc8  ; mes++
@@ -146,21 +155,10 @@ corregir_mes:
   rts 
 
   cm_cuerpowhile:
+    ldb #0x12
+    bsr ajusteresta
     ;; cuerpo del while
     suba #0x12
-    
-    ; Función en línea
-    ;   Hace una primitiva corrección de la resta para BCD.
-    ; Entrada: a
-    ; Salida:  a
-    ; Afecta:  a
-      tfr a, b
-      andb #0x0f      ; Comparamos las unidades de un sustraendo con las del otro. 
-      cmpb #0x0a      ; Si el numero de las unidades del primero es menor que el del segundo, hacemos el agosto
-      bls daar_ret    ; Ej: cuando restamos 30 no hacemos ajuste, porque 0 es menor que todos los demas numeros
-      suba #6         ; pero cuando restamos 28 hacemos ajuste para todos menor los que acaban en 8 o 9.
-      daar_ret:
-    ; Fin de la función en línea.
 
     bsr incano
 
