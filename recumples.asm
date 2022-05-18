@@ -311,7 +311,8 @@ programa:
 ; Afecta: X, A
 imprimeMes:
   leay enero, pcr
-  leax tablames, pcr
+  leax (tablames-1), pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
+                         ; en 1, en vez de 0.
 
   ldb *a_mes
   cmpb #0x10
@@ -321,8 +322,7 @@ imprimeMes:
                    ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
                    ; Osea, convertimos el BCD a hexa.
   iM_menor10:
-    decb           ; Convierto el mes (empieza en 1) en un índice para acceder a la lista (empieza en 0).
-    ldb b,x        ; Utilizo este índice para acceder a tablames y conseguir el índice sobre enero en el
+    ldb b,x        ; Utilizo el mes como índice para acceder a tablames y conseguir el índice sobre enero en el
                    ; que se encuentra la cadena del nombre del mes. Guardo este índice en b.
     leax b,y       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
                    ; en la que empieza la cadena del nombre del mes en x.
