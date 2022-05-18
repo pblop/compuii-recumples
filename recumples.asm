@@ -68,39 +68,6 @@ tabladiasmes:
   .byte 0x30       ; 0x11
   .byte 0x31       ; 0x12
 
-; Función.
-;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
-; Entrada: a (mes) 
-; Salida: a (mes modificado)
-; Afecta: a
-corregir_mes:
-  cmpa #0x12
-  bhi cm_cuerpowhile
-
-  sta *a_mes
-  rts 
-
-  cm_cuerpowhile:
-    ;; cuerpo del while
-    suba #0x12
-    
-    ; Función en línea
-    ;   Hace una primitiva corrección de la resta para BCD.
-    ; Entrada: a
-    ; Salida:  a
-    ; Afecta:  a
-      tfr a, b
-      andb #0x0f      ; Comparamos las unidades de un sustraendo con las del otro. 
-      cmpb #0x0a      ; Si el numero de las unidades del primero es menor que el del segundo, hacemos el agosto
-      bls daar_ret    ; Ej: cuando restamos 30 no hacemos ajuste, porque 0 es menor que todos los demas numeros
-      suba #6         ; pero cuando restamos 28 hacemos ajuste para todos menor los que acaban en 8 o 9.
-      daar_ret:
-    ; Fin de la función en línea.
-
-    bsr incano
-
-    bra corregir_mes
-
 ; Funcion.
 ; Corregir el dia si nos pasamos de los que puede tener un mes
 ; Entrada: b (dia)
@@ -175,6 +142,40 @@ corregir_dia:
 
   cd_ret:
     rts
+
+; Función.
+;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
+; Entrada: a (mes) 
+; Salida: a (mes modificado)
+; Afecta: a
+corregir_mes:
+  cmpa #0x12
+  bhi cm_cuerpowhile
+
+  sta *a_mes
+  rts 
+
+  cm_cuerpowhile:
+    ;; cuerpo del while
+    suba #0x12
+    
+    ; Función en línea
+    ;   Hace una primitiva corrección de la resta para BCD.
+    ; Entrada: a
+    ; Salida:  a
+    ; Afecta:  a
+      tfr a, b
+      andb #0x0f      ; Comparamos las unidades de un sustraendo con las del otro. 
+      cmpb #0x0a      ; Si el numero de las unidades del primero es menor que el del segundo, hacemos el agosto
+      bls daar_ret    ; Ej: cuando restamos 30 no hacemos ajuste, porque 0 es menor que todos los demas numeros
+      suba #6         ; pero cuando restamos 28 hacemos ajuste para todos menor los que acaban en 8 o 9.
+      daar_ret:
+    ; Fin de la función en línea.
+
+    bsr incano
+
+    bra corregir_mes
+
 
 ; Función: inc8.
 ;   Incrementa un número de 8 bits
@@ -274,7 +275,7 @@ programa:
     lda *a_mes          ; mes += i
     bsr suma88        ;
     ds: 
-    lbsr corregir_mes ; corregir_mes()
+    bsr corregir_mes ; corregir_mes()
     
     dcm:
     lbsr corregir_dia  ; corregir_dia()
