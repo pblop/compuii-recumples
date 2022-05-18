@@ -36,7 +36,6 @@ octubre:     .asciz "octubre"
 noviembre:   .asciz "noviembre"
 diciembre:   .asciz "diciembre"
 
-
 ; Guarda la dirección de cada una de las cadenas de caracteres
 ; con respecto a enero.
 tablames:
@@ -53,10 +52,12 @@ tablames:
   .byte noviembre-enero  ; 0x11
   .byte diciembre-enero  ; 0x12
 
+; Guarda los días que tiene cada mes, para poder hacer cuentas
+; con ellos.
 tabladiasmes:
   .byte 0x31
-  .byte 0x28
-  .byte 0x31
+  .byte 0x28 ; Los días de febrero los actualizaremos más adelante, en función
+  .byte 0x31 ; de si es o no bisiesto.
   .byte 0x30
   .byte 0x31
   .byte 0x30
@@ -149,12 +150,14 @@ corregir_dia:
       ; Ejemplo: 31-28=08 pero tenía que ser 2.
       ; En este caso: sustraendo 2: a,x. Sustraendo 1: b
       pshs d
-      lda a, x
-      anda #0x0f   ; A contiene la última cifra (uc) del sus2.
-      andb #0x0f   ; B contiene la uc del sus1.
-      pshs b
-      cmpa ,s+
-      puls d
+        lda a, x
+        anda #0x0f   ; A contiene la última cifra (uc) del sus2.
+        andb #0x0f   ; B contiene la uc del sus1.
+
+        pshs b       ; Comparo a con b
+        cmpa ,s+     ;     ;
+        
+        puls d
       bls cd_noajustarresta ; Ajustar resta si uc2 > uc1.
 
       subb #6
@@ -196,7 +199,6 @@ inc8_ret:
 ;   Incrementa un año (16 bits).
 ; Entrada: año (stack)
 ; Salida: año (stack)
-; Registros afectados: a
 incano:
   pshs a
 
