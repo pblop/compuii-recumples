@@ -70,9 +70,8 @@ tabladiasmes:
 
 ; Funcion.
 ; Corregir el dia si nos pasamos de los que puede tener un mes
-; Entrada: b (dia)
-;          a (mes)
-; Salida:  b (dia)
+; Entrada: a_dia, a_mes 
+; Salida:  a_dia
 ; Registros afectados: a, b
 corregir_dia:
   leax (tabladiasmes-1), pcr
@@ -90,7 +89,7 @@ corregir_dia:
 
       andb #0b00001001
       beq ab_si_bisiesto
-      coma 
+      cmpb #0b00001001 
       beq ab_si_bisiesto
 
       ab_no_bisiesto:
@@ -101,7 +100,7 @@ corregir_dia:
       ab_ret:
         stb 2,x
     ; Fin de funcion en linea
-    ldd *a_mes
+    ldd *a_mes ; Guardamos el día en b, y el mes en a
     cmpa #10
     blo cd_menor10
 
@@ -248,6 +247,7 @@ programa:
     ldb dia+1, pcr
     stb *a_dia
 
+    ; Hacemos ano += i con esta función
     ; Función en línea: sumaano
     ; Suma dos números (8 y 16 bits) en BCD.
     ; Entrada:
