@@ -329,7 +329,10 @@ imprimeMes:
     leax b,y       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
                    ; en la que empieza la cadena del nombre del mes en x.
 
-  ;bra imprimeASCII ; Imprimo la cadena guardada en x.
+  ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
+  ; podríamos optimizarlo con un bra imprimeASCII en su lugar.
+  ; Pero además, como imprimeASCII está justo debajo de esta función, no tenemos
+  ; ni que saltar a ella.
 
 ; Función.
 ; Imprime la cadena ASCII marcada por X por pantalla.
@@ -351,15 +354,15 @@ imprimeASCII:
 ; Entrada: a
 ; Salida: pantalla
 ; Afecta: a
+dospuntos: .asciz ": "
 imprime_fecha:
   lda *iBCD           ; Imprime i con el formato %02d
   bsr imprime_cifra1
   lda *iBCD
   bsr imprime_cifra2
-  lda #':             ; Imprime ': '
-  sta pantalla 
-  lda #' 
-  sta pantalla
+
+  leax dospuntos, pcr
+  bsr imprimeASCII
 
   lda *a_dia          ; Imprimimos a_dia con el formato %d
   cmpa #0x10          ;
