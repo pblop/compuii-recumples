@@ -99,7 +99,7 @@ corregir_dia:
       ab_si_bisiesto:
         ldb #0x29
       ab_ret:
-        stb tabladiasmes+2-1, pcr
+        stb 2,x
     ; Fin de funcion en linea
     ldd *a_mes
     cmpa #10
@@ -312,7 +312,6 @@ programa:
 ; Salida: pantalla
 ; Afecta: X, A
 imprimeMes:
-  leay enero, pcr
   leax (tablames-1), pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
                          ; en 1, en vez de 0.
 
@@ -326,7 +325,8 @@ imprimeMes:
   iM_menor10:
     ldb b,x        ; Utilizo el mes como índice para acceder a tablames y conseguir el índice sobre enero en el
                    ; que se encuentra la cadena del nombre del mes. Guardo este índice en b.
-    leax b,y       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
+    leax enero, pcr
+    leax b,x       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
                    ; en la que empieza la cadena del nombre del mes en x.
 
   ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
