@@ -25,34 +25,19 @@ mes:      .word 0x{MES}
 dia:      .word 0x{DIA}
 nCumples: .byte 30
 
-enero:       .asciz "enero"
-febrero:     .asciz "febrero"
-marzo:       .asciz "marzo"
-abril:       .asciz "abril"
-mayo:        .asciz "mayo"
-junio:       .asciz "junio"
-julio:       .asciz "julio"
-agosto:      .asciz "agosto"
-septiembre:  .asciz "septiembre"
-octubre:     .asciz "octubre"
-noviembre:   .asciz "noviembre"
-diciembre:   .asciz "diciembre"
-
-; Guarda la dirección de cada una de las cadenas de caracteres
-; con respecto a enero.
-tablames:
-  .byte enero-enero
-  .byte febrero-enero
-  .byte marzo-enero
-  .byte abril-enero
-  .byte mayo-enero
-  .byte junio-enero
-  .byte julio-enero
-  .byte agosto-enero
-  .byte septiembre-enero ; 0x9
-  .byte octubre-enero    ; 0x10
-  .byte noviembre-enero  ; 0x11
-  .byte diciembre-enero  ; 0x12
+tablacadenas: .byte 0
+  enero:      .asciz "enero"
+  febrero:    .asciz "febrero"
+  marzo:      .asciz "marzo"
+  abril:      .asciz "abril"
+  mayo:       .asciz "mayo"
+  junio:      .asciz "junio"
+  julio:      .asciz "julio"
+  agosto:     .asciz "agosto"
+  septiembre: .asciz "septiembre"
+  octubre:    .asciz "octubre"
+  noviembre:  .asciz "noviembre"
+  diciembre:  .asciz "diciembre"
 
 ; Guarda los días que tiene cada mes, para poder hacer cuentas
 ; con ellos.
@@ -310,22 +295,24 @@ programa:
 ; Salida: pantalla
 ; Afecta: X, A
 imprimeMes:
-  leax (tablames-1), pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
+  leax tablacadenas, pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
                          ; en 1, en vez de 0.
 
   ldb *a_mes
   cmpb #0x10
   blo iM_menor10
-  subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
-                   ; 0xA (10) y 0x10 (el número que queremos) para que
-                   ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
-                   ; Osea, convertimos el BCD a hexa.
+    subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
+                     ; 0xA (10) y 0x10 (el número que queremos) para que
+                     ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
+                     ; Osea, convertimos el BCD a hexa.
   iM_menor10:
-    ldb b,x        ; Utilizo el mes como índice para acceder a tablames y conseguir el índice sobre enero en el
-                   ; que se encuentra la cadena del nombre del mes. Guardo este índice en b.
-    leax enero, pcr
-    leax b,x       ; Utilizo este índice para acceder a la lista de nombres de meses, y guardo la dirección
-                   ; en la que empieza la cadena del nombre del mes en x.
+  iM_bucle:
+    lda ,x+
+    bne iM_bucle
+
+  iM_cero:           ; Cuando encontramos un caracter 0, le restamos 1 a b.
+    decb             ; Cuando llegamos a 0, imprimimos.
+    bne iM_bucle     ; (BNE salta cuando no hemos llegado a 0) 
 
   ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
   ; podríamos optimizarlo con un bra imprimeASCII en su lugar.
