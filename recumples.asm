@@ -36,7 +36,6 @@ octubre:     .asciz "octubre"
 noviembre:   .asciz "noviembre"
 diciembre:   .asciz "diciembre"
 
-de: .asciz " de "
 
 ; Guarda la dirección de cada una de las cadenas de caracteres
 ; con respecto a enero.
@@ -392,6 +391,7 @@ imprime_fecha:
 ; Entrada: nada
 ; Salida: pantalla
 ; Afecta: X
+de: .asciz " de "
 imprimeDe:
   leax de, pcr
   bsr imprimeASCII
