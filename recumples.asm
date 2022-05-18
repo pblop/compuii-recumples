@@ -8,6 +8,8 @@ teclado  .equ 0xFF02
 ; VARIABLES AUX
 i        .equ 0x80
 a_ano    .equ 0x81
+a_ano_primera .equ 0x81
+a_ano_segunda .equ 0x82
 a_mes    .equ 0x83
 a_dia    .equ 0x84
 iBCD     .equ 0x85
@@ -82,7 +84,7 @@ corregir_dia:
     ; Entrada: nada
     ; Salida: los días de febrero en la tabladiasmes
     ; Afecta: D, tabladiasmes
-      ldb *a_ano+1 ; solo necesitamos la ultima parte de ano
+      ldb *a_ano_segunda ; solo necesitamos la ultima parte de ano
       ; Si el último bit de la última cifra es 1, no es bisiesto.
       asrb
       bcs ab_no_bisiesto
@@ -202,16 +204,16 @@ inc8_ret:
 incano:
   pshs a
 
-  lda *a_ano+1
+  lda *a_ano_segunda
   bsr inc8
-  sta *a_ano+1
+  sta *a_ano_segunda
   cmpa #0
   beq incano_2000
   bra incano_ret
   
   incano_2000:
     lda #0x20
-    sta *a_ano
+    sta *a_ano_primera
 
   incano_ret:
     puls a
@@ -373,13 +375,13 @@ imprime_fecha:
   bsr imprimeMes
   bsr imprimeDe
 
-  lda *a_ano          ; Imprimimos a_ano con el formato %d
+  lda *a_ano_primera  ; Imprimimos a_ano con el formato %d
   bsr imprime_cifra1  ; Aquí la primera cifra
-  lda *a_ano
+  lda *a_ano_primera
   bsr imprime_cifra2  ; Aquí la segunda cifra
-  lda *a_ano+1
+  lda *a_ano_segunda
   bsr imprime_cifra1  ; Aquí la tercera cifra
-  lda *a_ano+1
+  lda *a_ano_segunda
   bsr imprime_cifra2  ; Aquí la cuerta cifra
 
   lda #'\n
