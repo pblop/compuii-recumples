@@ -231,28 +231,6 @@ suma88:
   daa         ; Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
   rts
 
-; Función.
-; Suma dos números (8 y 16 bits) en BCD.
-; Entrada:
-;          a_año: primer número
-;          nCumples: segundo numero
-; Registros afectados: 
-; Salida:
-;          a_año: suma
-sumaano:
-  lda #0x0      ; i = 0 para el bucle
-  
-  sa_bucle:
-    cmpa *iBCD
-    bhs sa_ret
-
-    bsr incano
-
-    bsr inc8
-    bra sa_bucle  ; while i < nCumples
-  
-  sa_ret:
-    rts
 
 programa:
   ; Inicializar stacks.
@@ -270,7 +248,25 @@ programa:
     ldb dia+1, pcr
     stb *a_dia
 
-    bsr sumaano       ; año += i
+    ; Función en línea: sumaano
+    ; Suma dos números (8 y 16 bits) en BCD.
+    ; Entrada:
+    ;          a_año: primer número
+    ;          nCumples: segundo numero
+    ; Registros afectados: 
+    ; Salida:
+    ;          a_año: suma
+    sumaano:
+      lda #0x0      ; j = 0 para el bucle
+      sa_bucle:
+        cmpa *iBCD
+        bhs sa_ret
+
+        bsr incano
+
+        bsr inc8
+        bra sa_bucle  ; while j < i
+      sa_ret:
 
     lda *a_mes          ; mes += i
     bsr suma88        ;
