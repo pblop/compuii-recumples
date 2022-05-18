@@ -85,12 +85,12 @@ corregir_dia:
     ; Afecta: D, tabladiasmes
       ldb *a_ano+1 ; solo necesitamos la ultima parte de ano
       ; Si el último bit de la última cifra es 1, no es bisiesto.
-      bitb #0b00000001
-      bne ab_no_bisiesto
+      asrb
+      bcs ab_no_bisiesto
 
-      andb #0b00010010
+      andb #0b00001001
       beq ab_si_bisiesto
-      cmpb #0b00010010
+      coma 
       beq ab_si_bisiesto
 
       ab_no_bisiesto:
