@@ -20,7 +20,7 @@ iBCD     .equ 0x85
 .globl programa
 
 ; VARIABLES
-ano:      .word 0x{ANO}
+aNo:      .word 0x{ANO}
 mes:      .word 0x{MES}
 dia:      .word 0x{DIA}
 nCumples: .byte 30
@@ -226,11 +226,11 @@ programa:
   lds #0xF000
 
   ; Bucle para i.
-  lda #0
-  sta *i     ; i = 0
+  ; No inicializo las variables i e iBCD a 0 porque por defecto esas direcciones
+  ; de memoria son 0.
   mbuclei:
     ; Cargar dia, mes y año en nuestras variables auxiliares (con las que trabajamos).
-    ldd ano, pcr
+    ldd aNo, pcr
     std *a_ano
     ldb mes+1, pcr
     stb *a_mes
