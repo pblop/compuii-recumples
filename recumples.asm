@@ -389,9 +389,7 @@ imprimeASCII:
 dospuntos: .asciz ": "
 imprime_fecha:
   lda *iBCD                   ; Imprime i con el formato %02d
-  bsr imprime_cifra1
-  lda *iBCD
-  bsr imprime_cifra2
+  bsr imprime_cifras
 
   leax dospuntos, pcr
   bsr imprimeASCII
@@ -399,27 +397,24 @@ imprime_fecha:
   lda *a_dia                  ; Imprimimos a_dia con el formato %d
   cmpa #0x10                  ;
   blo if_menor10              ; Si a_dia < 10, no imprimimos la primera cifra
-
-  bsr imprime_cifra1
+  
+  bsr imprime_cifras
+  bra if_finmenor10
   if_menor10:
-    lda *a_dia                ; Segunda cifra de a_dia
     bsr imprime_cifra2
+  if_finmenor10:
 
   bsr imprimeDe               ; Imprimimos el primer de
   bsr imprimeMes
   bsr imprimeDe
 
   lda *a_ano_primera          ; Imprimimos a_ano con el formato %d
-  bsr imprime_cifra1          ; Aquí la primera cifra
-  lda *a_ano_primera
-  bsr imprime_cifra2          ; Aquí la segunda cifra
+  bsr imprime_cifras          ; Aquí la primera y segunda cifras
   lda *a_ano_segunda
-  bsr imprime_cifra1          ; Aquí la tercera cifra
-  lda *a_ano_segunda
-  bsr imprime_cifra2          ; Aquí la cuerta cifra
+  bsr imprime_cifras          ; Aquí la tercera y cuarta cifras
 
   lda #'\n-#'0                ; Cargar esto es una mickey-herramienta sorpresa
-  bra stapantallarts          ; para poder usar stapantallarts
+  bra imprime_num             ; para poder usar imprime_num (que añade #'0 a a) 
 
 ; FUNCIÓN
 ;       Imprime " de " por pantalla
@@ -437,7 +432,7 @@ imprimeDe:
   bra imprimeASCII
 
 ; FUNCIÓN
-;       Imprime la cifra de las decenas de un número en BCD (byte)
+;       Imprime ambas cifras de un número en BCD (byte)
 ; 
 ;   Entrada: 
 ;       A 
@@ -445,13 +440,15 @@ imprimeDe:
 ;   Salida:
 ;       Pantalla
 ;
-;   Registros afectados: A
-imprime_cifra1:
+;   Registros afectados: 
+imprime_cifras:
+  pshs a
   lsra lsra lsra lsra
-  bra stapantallarts
+  bsr imprime_num
+  puls a
 
 ; FUNCIÓN
-;       Imprime la cifra de las unidades de un número en BCD (byte)
+;       Imprime la segunda cifra de un número en BCD (byte)
 ; 
 ;   Entrada: 
 ;       A 
@@ -468,7 +465,7 @@ imprime_cifra2:
 ;       sta pantalla
 ;       rts
 ; ¡Así ahorramos 2 bytes (o 3)!
-stapantallarts:
+imprime_num:
   adda #'0
   sta pantalla
   rts
