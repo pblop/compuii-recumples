@@ -124,8 +124,8 @@ corregir_dia:
       ab_si_bisiesto:
         inca
       ab_no_bisiesto:
-      ab_ret:
         sta 2,x
+      ab_ret:
     ; Fin de función en linea
     ldd *a_dia                ; Guardamos el día en A y el mes en B
     cmpb #10                  
@@ -245,7 +245,7 @@ programa:
 
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
   clra clrb            
-  std *i                      ; Inicilizamos i a 0
+  std *i                      ; Inicilizamos i e iBCD a 0
   mbuclei:
     ldd aNo, pcr              ; Cargamos dia, mes año originales en las 
     std *a_ano                ; variables auxiliares, con las que
@@ -294,7 +294,7 @@ programa:
     lda *a_mes                  ; mes += i
     bsr suma_i                  ;
 
-    bsr corregir_mes 
+    bsr corregir_mes            ; corregir_mes guarda a en *a_mes, no tenemos que hacerlo nosotros 
     
     lbsr corregir_dia  
 
