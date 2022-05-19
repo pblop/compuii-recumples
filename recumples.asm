@@ -100,6 +100,7 @@ corregir_dia:
     ;     en función de si el año actual es bisiesto
     ;
     ;   Entrada:
+    ;     x: listadiasmes-1
     ;     a_ano_segunda
     ;
     ;   Salida: 
@@ -108,7 +109,9 @@ corregir_dia:
     ;   Registros afectados: D, listadiasmes
     actualiza_bisiesto:
       ldb *a_ano_segunda      ; Solo necesitamos la última parte de año
-      lda #0x28
+      lda #0x28               ; Cargo 0x28, este es el número que vamos a guardar
+                              ; en la entrada de febrero en listadiasmes. Si es bisiesto
+                              ; incrementamos el número (0x29) antes de guardarlo.
 
       asrb                    ; Si el último bit de la última cifra es 1, 
       bcs ab_no_bisiesto      ; no es bisiesto.
