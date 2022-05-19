@@ -16,10 +16,10 @@ teclado         .equ 0xFF02
 
 ; VARIABLES AUX
 i               .equ 0x80           ; Usamos dos i distintas, una normal para 
-iBCD            .equ 0x81
-a_ano           .equ 0x82           ; poder comparar con nCumpeles al final del 
-a_ano_primera   .equ 0x82           ; bucle y otra en BCD, para poder imprimirla 
-a_ano_segunda   .equ 0x83           ; y hacer cuentas mas fácilmente
+iBCD            .equ 0x81           ; poder comparar con nCumpeles al final del
+a_ano           .equ 0x82           ; bucle y otra en BCD, para poder imprimirla 
+a_ano_primera   .equ 0x82           ; y hacer cuentas mas fácilmente
+a_ano_segunda   .equ 0x83
 a_dia           .equ 0x84
 a_mes           .equ 0x85
 
@@ -28,11 +28,11 @@ a_mes           .equ 0x85
 .org 0x100
 .globl programa
 
-; VARIABLES
-aNo:         .word 0x{ANO}
-mes:         .word 0x{MES}
-dia:         .word 0x{DIA}
-nCumples:    .byte 30
+; INTERFAZ DE ENTRADA.
+aNo:         .word 0x{ANO}          ; Año de nacimiento (BCD)
+mes:         .word 0x{MES}          ; Mes de nacimiento (BCD) (1, enero, etc.)
+dIa:         .word 0x{DIA}          ; Día de nacimiento (BCD)
+nCumples:    .byte 30               ; Número de recumples que calcular
 
 ; FUNCIÓNES QUE HACEN CALCULOS
 
@@ -139,8 +139,9 @@ corregir_dia:
     bsr corregir_mes          ; Corregimos el mes y guardamos el valor corregido 
                               ; en *a_mes
 
-  saltar_corregir_dia:
-    bra cd_while
+  saltar_corregir_dia:        ; Esta etiqueta existe para poder saltar a cd_while
+    bra cd_while              ; (que es lo mismo que corregir_dia) sin necesitar
+                              ; un lbsr.
 
 
 
@@ -268,7 +269,7 @@ programa:
     std *a_ano                ; variables auxiliares, con las que
     ldb mes+1, pcr            ; vamos a trabajar
     stb *a_mes
-    ldb dia+1, pcr
+    ldb dIa+1, pcr
     stb *a_dia
 
     ; Función en línea: sumaano
