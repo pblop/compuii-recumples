@@ -418,8 +418,8 @@ imprime_fecha:
   lda *a_ano_segunda
   bsr imprime_cifra2          ; Aquí la cuerta cifra
 
-  lda #'\n
-  bra stapantallrts
+  lda #'\n-#'0                ; Cargar esto es una mickey-herramienta sorpresa
+  bra stapantallarts          ; para poder usar stapantallarts
 
 ; FUNCIÓN
 ;       Imprime " de " por pantalla
@@ -448,8 +448,7 @@ imprimeDe:
 ;   Registros afectados: A
 imprime_cifra1:
   lsra lsra lsra lsra
-  adda #'0 
-  bra stapantallrts
+  bra stapantallarts
 
 ; FUNCIÓN
 ;       Imprime la cifra de las unidades de un número en BCD (byte)
@@ -463,13 +462,14 @@ imprime_cifra1:
 ;   Registros afectados: A
 imprime_cifra2:
   anda #0x0f
-  adda #'0
 
 ; Para ahorrar espacio, saltamos a esta mini-función cada vez que queramos hacer:
+;       adda #'0
 ;       sta pantalla
 ;       rts
-; ¡Así ahorramos 1 byte (o 2)!
-stapantallrts:
+; ¡Así ahorramos 2 bytes (o 3)!
+stapantallarts:
+  adda #'0
   sta pantalla
   rts
 
