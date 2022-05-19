@@ -244,8 +244,7 @@ programa:
   lds #0xF000
 
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
-  clra clrb            
-  std *i                      ; Inicilizamos i e iBCD a 0
+  ; i, iBCD = 0 por defecto
   mbuclei:
     ldd aNo, pcr              ; Cargamos dia, mes año originales en las 
     std *a_ano                ; variables auxiliares, con las que
