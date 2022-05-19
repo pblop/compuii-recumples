@@ -414,27 +414,27 @@ imprime_fecha:
   leax dospuntos, pcr
   bsr imprimeASCII
 
-  lda *a_dia          ; Imprimimos a_dia con el formato %d
-  cmpa #0x10          ;
-  blo if_menor10      ;   Si a_dia < 10, no imprimimos la primera cifra.
+  lda *a_dia                  ; Imprimimos a_dia con el formato %d
+  cmpa #0x10                  ;
+  blo if_menor10              ;   Si a_dia < 10, no imprimimos la primera cifra.
 
   bsr imprime_cifra1
   if_menor10:
-    lda *a_dia        ;   Segunda cifra de a_dia
+    lda *a_dia                ;   Segunda cifra de a_dia
     bsr imprime_cifra2
 
-  bsr imprimeDe       ; Imprimimos el primer 
+  bsr imprimeDe               ; Imprimimos el primer de
   bsr imprimeMes
   bsr imprimeDe
 
-  lda *a_ano_primera  ; Imprimimos a_ano con el formato %d
-  bsr imprime_cifra1  ; Aquí la primera cifra
+  lda *a_ano_primera          ; Imprimimos a_ano con el formato %d
+  bsr imprime_cifra1          ; Aquí la primera cifra
   lda *a_ano_primera
-  bsr imprime_cifra2  ; Aquí la segunda cifra
+  bsr imprime_cifra2          ; Aquí la segunda cifra
   lda *a_ano_segunda
-  bsr imprime_cifra1  ; Aquí la tercera cifra
+  bsr imprime_cifra1          ; Aquí la tercera cifra
   lda *a_ano_segunda
-  bsr imprime_cifra2  ; Aquí la cuerta cifra
+  bsr imprime_cifra2          ; Aquí la cuerta cifra
 
   lda #'\n
   sta pantalla
