@@ -1,18 +1,18 @@
 .area PROG (ABS)
 
 ; CONSTANTES
-fin      .equ 0xFF01
-pantalla .equ 0xFF00
-teclado  .equ 0xFF02
+fin             .equ 0xFF01
+pantalla        .equ 0xFF00
+teclado         .equ 0xFF02
 
 ; VARIABLES AUX
-i        .equ 0x80
-a_ano    .equ 0x81
-a_ano_primera .equ 0x81
-a_ano_segunda .equ 0x82
-a_dia    .equ 0x83
-a_mes    .equ 0x84
-iBCD     .equ 0x85
+i               .equ 0x80
+a_ano           .equ 0x81
+a_ano_primera   .equ 0x81
+a_ano_segunda   .equ 0x82
+a_dia           .equ 0x83
+a_mes           .equ 0x84
+iBCD            .equ 0x85
 
 ; DIRECTIVAS
 .area _CODE (ABS)
@@ -20,63 +20,77 @@ iBCD     .equ 0x85
 .globl programa
 
 ; VARIABLES
-aNo:      .word 0x{ANO}
-mes:      .word 0x{MES}
-dia:      .word 0x{DIA}
-nCumples: .byte 30
+aNo:         .word 0x{ANO}
+mes:         .word 0x{MES}
+dia:         .word 0x{DIA}
+nCumples:    .byte 30
 
-; Lista que guarda las cadenas de texto de los nombres de los meses.
+; LISTA CON LAS CADENAS DE TEXTO DE LOS MESES
+;
 ; Guardamos un byte 0 al comienzo de la misma porque los meses están indizados en 1,
-; y a la hora de buscar, es como restarle 1 al mes, pero ocupa menos que mover la
-; comprobación de imprimeMes arriba y hacer un bra abajo hacia la comprobación.
-tablacadenas: .byte 0
-  enero:      .asciz "enero"
-  febrero:    .asciz "febrero"
-  marzo:      .asciz "marzo"
-  abril:      .asciz "abril"
-  mayo:       .asciz "mayo"
-  junio:      .asciz "junio"
-  julio:      .asciz "julio"
-  agosto:     .asciz "agosto"
-  septiembre: .asciz "septiembre"
-  octubre:    .asciz "octubre"
-  noviembre:  .asciz "noviembre"
-  diciembre:  .asciz "diciembre"
+; es decir, enero es el mes 1, no el mes 0. 
+; De esta manera, cuando buscamos ceros mas adelante en imprimir_mes, si queremos
+; imprimir enero encontrara 1, para febrero encontrara 2, etc.
+; por el byte que hemos añadido.
+lista_nombres: 
+  .byte 0
+  enero:        .asciz "enero"
+  febrero:      .asciz "febrero"
+  marzo:        .asciz "marzo"
+  abril:        .asciz "abril"
+  mayo:         .asciz "mayo"
+  junio:        .asciz "junio"
+  julio:        .asciz "julio"
+  agosto:       .asciz "agosto"
+  septiembre:   .asciz "septiembre"
+  octubre:      .asciz "octubre"
+  noviembre:    .asciz "noviembre"
+  diciembre:    .asciz "diciembre"
 
-; Guarda los días que tiene cada mes, para poder hacer cuentas
-; con ellos.
+; TABLA CON LOS DIAS DE CADA MES
 tabladiasmes:
-  .byte 0x31
-  .byte 0x28 ; Los días de febrero los actualizaremos más adelante, en función
-  .byte 0x31 ; de si es o no bisiesto.
+  .byte 0x31    ; 0x1 (enero)
+  .byte 0x28    ; Los días de febrero los actualizaremos más adelante, 
+  .byte 0x31    ; en función de si es o no bisiesto.
   .byte 0x30
   .byte 0x31
   .byte 0x30
   .byte 0x31
   .byte 0x31
-  .byte 0x30       ; 0x9
-  .byte 0x31       ; 0x10
-  .byte 0x30       ; 0x11
-  .byte 0x31       ; 0x12
+  .byte 0x30   ; 0x9
+  .byte 0x31   ; 0xA -> 0x10
+  .byte 0x30   ; 0xB -> 0x11
+  .byte 0x31   ; 0xC -> 0x12 
 
-; Función
-; Ajuste de la resta.
-; Problema:
-;    La resta sale mal si el último dígito del sustraendo 2 es más grande que el
-;    último dígito del sustraendo uno.
-;    Ejemplo: 31-28=08 pero tenía que ser 2.
-; Entrada: sustraendo 1: a, sustraendo 2: b
-ajusteresta:
-  pshs d
-    anda #0x0f   ; A contiene la última cifra (uc) del sus1.
-    andb #0x0f   ; B contiene la uc del sus2.
+; FUNCIONES QUE HACEN CALCULOS
 
-    pshs a       ; Comparo b con a
-    cmpb ,s+     ; 
-    
+; FUNCION
+;       Ajuste de la resta para que nos de un numero en BCD.
+; 
+;   Explicacion:
+;       Hemos comprobado que solamente hay que corregir la resta cuando
+;       el último dígito del sustraendo es más grande que el
+;       último dígito del minuendo.
+;       - Ejemplo: 0x31 - 0x28 = 0x08, en BCD seria 0x02. (8 > 1)
+;                  0x37 - 0x30 = 0x07, no hay que hacer ajuste (0 < 7)
+; 
+;   Entrada: 
+;       Minuendo: a
+;       Sustraendo: b
+;
+;   Salida:
+;       Diferencia (ajustada): a
+ajuste_resta:
+  pshs d       ; Guardamos los dos miembros de la resta
+  anda #0x0f   ; a contiene la última cifra (uc1) del minuendo
+  andb #0x0f   ; b contiene la uc2 del sustraendo
+
+  pshs a       ; Comparo b con a
+  cmpb ,s+     ; 
+
   puls d
-  bls ar_noajustarresta ; Ajustar resta si uc2 > uc1.
-
+  ; Ajustar resta si uc2 > uc1.       
+  bls ar_noajustarresta 
   suba #6
 
   ar_noajustarresta:
@@ -128,7 +142,7 @@ corregir_dia:
       
       ldb b, x  ; b = dias[mes-1]
       pshs b
-      bsr ajusteresta
+      bsr ajuste_resta
       suba ,s+  ; dia -= dias[mes-1]
 
       sta *a_dia
@@ -156,7 +170,7 @@ corregir_mes:
 
   cm_cuerpowhile:
     ldb #0x12
-    bsr ajusteresta
+    bsr ajuste_resta
     ;; cuerpo del while
     suba #0x12
 
@@ -296,7 +310,7 @@ programa:
 ; Salida: pantalla
 ; Afecta: X, A
 imprimeMes:
-  leax tablacadenas, pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
+  leax lista_nombres, pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
                          ; en 1, en vez de 0.
 
   ldb *a_mes
