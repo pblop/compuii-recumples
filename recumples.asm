@@ -80,7 +80,7 @@ resta_ajustada:
     rts
 
 ; FUNCIÓN
-;       Corregir el dia si nos pasamos de los que puede tener un mes
+;       Corregir el día si nos pasamos de los que puede tener un mes
 ; 
 ;   Entrada: 
 ;       a_dia 
@@ -91,7 +91,7 @@ resta_ajustada:
 ;
 ;   Registros afectados: A, B
 corregir_dia:
-  leax (listadiasmes-1), pcr  ; Cargamos la direccion anterior  
+  leax (listadiasmes-1), pcr  ; Cargamos la dirección anterior  
                               ; al inicio de la tabla porque 
                               ; los meses empizan en 1 y no en 0
   cd_while:
@@ -107,7 +107,7 @@ corregir_dia:
     ;
     ;   Registros afectados: D, listadiasmes
     actualiza_bisiesto:
-      ldb *a_ano_segunda      ; Solo necesitamos la última parte de ano
+      ldb *a_ano_segunda      ; Solo necesitamos la última parte de año
       asrb                    ; Si el último bit de la última cifra es 1, 
       bcs ab_no_bisiesto      ; no es bisiesto.
 
@@ -128,10 +128,10 @@ corregir_dia:
     cmpb #10                  
     blo cd_menor10
 
-    subb #(0x10-0xA)          ; Ajuste para el indice (por el BCD)
+    subb #(0x10-0xA)          ; Ajuste para el índice (por el BCD)
     
     cd_menor10:
-      cmpa b, x               ; número de días del mes en el que estamos
+      cmpa b, x               ; Número de días del mes en el que estamos
       bls cd_ret
       
       ldb b, x                ; B = dias[mes-1]
@@ -149,7 +149,7 @@ corregir_dia:
 
 ; FUNCIÓN
 ;       Resta 12 al mes que tenemos hasta quedarnos
-;       con uno valido e incrementa el año con cada vuelta
+;       con uno válido e incrementa el año con cada vuelta
 ; 
 ;   Entrada: 
 ;       A (a_mes)
