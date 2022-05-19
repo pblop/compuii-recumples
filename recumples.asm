@@ -416,11 +416,11 @@ imprime_fecha:
 
   lda *a_dia                  ; Imprimimos a_dia con el formato %d
   cmpa #0x10                  ;
-  blo if_menor10              ;   Si a_dia < 10, no imprimimos la primera cifra.
+  blo if_menor10              ; Si a_dia < 10, no imprimimos la primera cifra
 
   bsr imprime_cifra1
   if_menor10:
-    lda *a_dia                ;   Segunda cifra de a_dia
+    lda *a_dia                ; Segunda cifra de a_dia
     bsr imprime_cifra2
 
   bsr imprimeDe               ; Imprimimos el primer de
