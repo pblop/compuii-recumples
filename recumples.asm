@@ -37,9 +37,9 @@ tabladiasmes:
   .byte 0x31
   .byte 0x31
   .byte 0x30   ; 0x9
-  .byte 0x31   ; 0xA -> 0x10
-  .byte 0x30   ; 0xB -> 0x11
-  .byte 0x31   ; 0xC -> 0x12 
+  .byte 0x31   ; 0xA (no 0x10)
+  .byte 0x30   ; 0xB (no 0x11)
+  .byte 0x31   ; 0xC (no 0x12)
 
 ; FUNCIONES QUE HACEN CALCULOS
 
@@ -69,7 +69,8 @@ resta_ajustada:
   pshs a        ; Comparo A con B
   cmpb ,s+      ; 
 
-  puls a
+  puls a        ; Sacamos a, porque lo hemos modificado anteriormente,
+                ; para poder hacer la resta.
   ; Ajustar resta si uc2 > uc1.       
   bls ra_noajustar 
   suba #6
