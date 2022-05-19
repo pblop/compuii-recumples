@@ -38,8 +38,11 @@ testReubic: recumples.rel lst
 testCorrecto: recumples.s19
 	./tools/comprobarSalida.sh
 test: testReubic testCorrecto
-	
 
+
+
+pdf:
+	nvim -c 'hardcopy > output.ps' -c quit recumples.asm && ps2pdf output.ps
 
 clean:
 	rm -f recumples_.asm *.rel *.s19 *.map *.lst 
