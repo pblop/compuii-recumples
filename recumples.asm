@@ -6,10 +6,10 @@ pantalla        .equ 0xFF00
 teclado         .equ 0xFF02
 
 ; VARIABLES AUX
-i               .equ 0x80
-a_ano           .equ 0x81
-a_ano_primera   .equ 0x81
-a_ano_segunda   .equ 0x82
+i               .equ 0x80           ; Usamos dos i distintas, una normal para 
+a_ano           .equ 0x81           ; poder comparar con nCumpeles al final del 
+a_ano_primera   .equ 0x81           ; bucle y otra en BCD, para poder imprimirla 
+a_ano_segunda   .equ 0x82           ; y hacer cuentas mas fácilmente
 a_dia           .equ 0x83
 a_mes           .equ 0x84
 iBCD            .equ 0x85
@@ -95,8 +95,8 @@ resta_ajustada:
   bls ra_noajustar 
   suba #6
 
-  ra_noajustar: ; Después de ajustar la resta si es necesario,
-    suba ,s+    ; restamos los dos números.
+  ra_noajustar: 
+    suba ,s+    ; Restamos los dos números.
     rts
 
 ; FUNCION
@@ -155,8 +155,7 @@ corregir_dia:
       bls cd_ret
       
       ldb b, x                ; B = dias[mes-1]
-      bsr resta_ajustada
-
+      bsr resta_ajustada      ; dias = dias - dias[mes-1]
       sta *a_dia
 
     lda *a_mes
@@ -168,11 +167,6 @@ corregir_dia:
   cd_ret:
     rts
 
-; Función.
-;   
-; Entrada: a (mes) 
-; Salida: a (mes modificado)
-; Afecta: a
 ; FUNCION
 ;       Resta 12 al mes que tenemos hasta quedarnos
 ;       con uno valido e incrementa el año con cada vuelta
@@ -188,134 +182,158 @@ corregir_mes:
   cmpa #0x12
   bhi cm_cuerpowhile
 
-  sta *a_mes
+  sta *a_mes                ; No corregimos el mes
   rts 
 
   cm_cuerpowhile:
     ldb #0x12
-    bsr resta_ajustada
-
-    bsr incano
+    bsr resta_ajustada      ; mes = mes -12
+    bsr incano              ; ano++
 
     bra corregir_mes
 
-
-; Función: inc8.
-;   Incrementa un número de 8 bits
-; Entrada: a (número a incrementar)
-; Salida: a
-; Registros afectados: b
+; FUNCION
+;       Incrementa un número de 8 bits en BCD
+; 
+;   Entrada: 
+;       A (número a incrementar) 
+;
+;   Salida:
+;       A (numero incrementado)
+;
+;   Registros afectados: A, B
 inc8:
   inca
   tfr a,b
-  andb #0x0f
-  cmpb #0x0a
+  andb #0x0f            ; Comprobamos si la ultima cifra es 
+  cmpb #0x0a            ; A, B, C, D o F
   bne inc8_segunda
-  adda #6
+  adda #6               ; Convertirmos en BCD
 inc8_segunda:
-  cmpa #0xa0
-  blo inc8_ret
-  clra
+  cmpa #0xa0           ; Comprobamos si la primera cifra es 
+  blo inc8_ret         ; A, B, C, D o F
+  clra                 ; Convertimos en BCD
 inc8_ret:
   rts
   
-; Función.
-;   Incrementa un año (16 bits).
-; Entrada: año (stack)
-; Salida: año (stack)
+; FUNCION
+;       Incrementa un número de 16 bits en BCD (año)
+; 
+;   Entrada: 
+;       a_ano_segunda 
+;
+;   Salida:
+;       a_ano_segunda y a_ano_primera
+;
+;   Registros afectados: A, S
 incano:
-  pshs a
+  pshs a                      ; Guardamos el valor de A para no borrarlo
 
   lda *a_ano_segunda
-  bsr inc8
+  bsr inc8                    ; Incrementamos las dos ultimas cifras
   sta *a_ano_segunda
-  beq incano_2000
-  bra incano_ret
-  
+  beq incano_2000             ; Comprobamos si nos ha quedado el registro
+  bra incano_ret              ; A vacío (00) para hacer el cambio
+                              ; de milenio 
   incano_2000:
     lda #0x20
     sta *a_ano_primera
 
   incano_ret:
-    puls a
+    puls a                    ; Restauramos el valor después de incrementar
     rts
 
-; Función.
-; Suma dos números en BCD.
-; Entrada:
-;          a: primer número
-;          i: segundo numero
-; Registros afectados: a
-; Salida:
-;          a: suma
-suma88:
+; FUNCION
+;       Suma i (BCD, 8 bits) a otro numero en BCD de 8 bits
+; 
+;   Entrada: 
+;       A (número a sumar) 
+;
+;   Salida:
+;       A (suma)
+;
+;   Registros afectados: A
+suma_i:
   adda *iBCD 
-  daa         ; Puede ser que daa a secas funcione pq la suma nunca > 0x61 (falla cuando pasa de 0x90)
-  rts
-
+  daa             ; Podemos usar daa a secas porque la suma 
+  rts             ; nunca > 0x61 (falla cuando pasa de 0x90)
 
 programa:
-  ; Inicializar stacks.
+  ; Inicializar stack
   lds #0xF000
 
-  ; Bucle para i.
-  ; No inicializo las variables i e iBCD a 0 porque por defecto esas direcciones
-  ; de memoria son 0.
+  ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
+  lda #0            
+  sta *i                      ; Inicilizamos i a 0
+  sta *iBCD
   mbuclei:
-    ; Cargar dia, mes y año en nuestras variables auxiliares (con las que trabajamos).
-    ldd aNo, pcr
-    std *a_ano
-    ldb mes+1, pcr
+    ldd aNo, pcr              ; Cargamos dia, mes año originales en las 
+    std *a_ano                ; variables auxiliares, con las que
+    ldb mes+1, pcr            ; vamos a trabajar
     stb *a_mes
     ldb dia+1, pcr
     stb *a_dia
 
-    ; Hacemos ano += i con esta función
     ; Función en línea: sumaano
-    ; Suma dos números (8 y 16 bits) en BCD.
+    ;
     ; Entrada:
     ;          a_año: primer número
     ;          nCumples: segundo numero
     ; Registros afectados: 
     ; Salida:
     ;          a_año: suma
+    ; Funcion en linea
+    ;      Suma dos números (8 y 16 bits) en BCD (i y aNo)
+    ;
+    ;   Explicacion:
+    ;      Para ahorrarnos espacio, lo hemos hecho en forma de bucle.
+    ;      Lo que hacemos es incrementar año j veces, mientras j
+    ;      sea menor que i, de esta manera es como si sumasemos
+    ;      i y año. (año += i)
+    ;
+    ;   Entrada:
+    ;       a_ano
+    ;       iBCD
+    ;
+    ;   Salida: 
+    ;       a_ano
+    ;
+    ;   Registros afectados: D, tabladiasmes
     sumaano:
-      lda #0x0      ; j = 0 para el bucle
-      sa_bucle:
-        cmpa *iBCD
+      lda #0x0                  ; j = 0 para el bucle
+      sa_bucle:                 
+        cmpa *iBCD              ; while j < i
         bhs sa_ret
 
-        bsr incano
+        bsr incano              ; ano++               
 
-        bsr inc8
-        bra sa_bucle  ; while j < i
+        bsr inc8                ; j++
+        bra sa_bucle            
       sa_ret:
+    ; Fin de función en línea
+    lda *a_mes                  ; mes += i
+    bsr suma_i                  ;
 
-    lda *a_mes          ; mes += i
-    bsr suma88        ;
-    ds: 
-    bsr corregir_mes ; corregir_mes()
+    bsr corregir_mes 
     
-    dcm:
-    lbsr corregir_dia  ; corregir_dia()
-    dcd:
-    lda *a_dia          ; dia += i
-    bsr suma88       ;
-    sta *a_dia          ;
+    lbsr corregir_dia  
 
-    cs2:
-    lbsr corregir_dia  ; corregir_dia()
-    dcd2:
-    bsr imprime_fecha; printf
+    lda *a_dia                  ; dia += i
+    bsr suma_i                  ;
+    sta *a_dia                  ;
 
-    ; Incrementamos la variable BCD
-    lda *iBCD
+    lbsr corregir_dia 
+
+    bsr imprime_fecha
+
+    lda *iBCD                   ; Incrementamos la variable BCD
     bsr inc8
     sta *iBCD
-    ; Incrementamos la variable hexa
-    lda *i
+    
+    lda *i                      ; Incrementamos la variable hexa
     inca
     sta *i
+
     cmpa nCumples, pcr
     bls mbuclei
 
@@ -325,41 +343,47 @@ programa:
 
 ; FUNCIONES PARA IMPRIMIR
 
-; Función.
-; Imprime el mes en B por pantalla.
-; Entrada: B (el mes)
-; Salida: pantalla
-; Afecta: X, A
+; FUNCION
+;       Imprime el mes por pantalla
+; 
+;   Entrada: 
+;       B (mes) 
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A, B, X
 imprimeMes:
-  leax lista_nombres, pcr ; Cargamos la dirección anterior al comienzo de la tabla porque los meses empiezan 
-                         ; en 1, en vez de 0.
+  leax lista_nombres, pcr     ; Cargamos la dirección anterior al comienzo de la 
+                              ; tabla porque los meses empiezan en 1, en vez de 0
 
-  ldb *a_mes
-  cmpb #0x10
-  blo iM_menor10
-    subb #(0x10-0xA) ; Si el número es >=0x10, le restamos 0x6 (la distancia desde
-                     ; 0xA (10) y 0x10 (el número que queremos) para que
-                     ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
-                     ; Osea, convertimos el BCD a hexa.
+  ldb *a_mes                  ; Si el número es >=0x10, le restamos 0x6 (la distancia
+  cmpb #0x10                  ; desde 0xA (10) y 0x10 (el número que queremos) para que
+  blo iM_menor10              ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
+    subb #(0x10-0xA)          ; Osea, convertimos el BCD a hexa.
+                              
   iM_menor10:
-  iM_bucle:
-    lda ,x+
-    bne iM_bucle
+    iM_bucle:
+      lda ,x+
+      bne iM_bucle
 
-  iM_cero:           ; Cuando encontramos un caracter 0, le restamos 1 a b.
-    decb             ; Cuando llegamos a 0, imprimimos.
-    bne iM_bucle     ; (BNE salta cuando no hemos llegado a 0) 
+    iM_cero:                
+      decb                    ; Cuando encontramos un caracter 0, le restamos 1 a b.
+      bne iM_bucle            ; Cuando llegamos a 0, imprimimos. 
+                              ; BNE salta cuando no hemos llegado a 0
 
-  ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
-  ; podríamos optimizarlo con un bra imprimeASCII en su lugar.
-  ; Pero además, como imprimeASCII está justo debajo de esta función, no tenemos
-  ; ni que saltar a ella.
+  ; No saltamos a imprimeASCII porque tenemos la función justo debajo
 
-; Función.
-; Imprime la cadena ASCII marcada por X por pantalla.
-; Entrada: X (dirección de la cadena a imprimir)
-; Salida: pantalla
-; Afecta: X, A
+; FUNCION
+;       Imprime la cadena ASCII marcada por X por pantalla
+; 
+;   Entrada: 
+;       X (dirección de la cadena a imprimir) 
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A, X
 imprimeASCII:
   iA_bucle:
     lda ,x+
@@ -370,11 +394,16 @@ imprimeASCII:
   iA_acabar:
     rts
 
-; Funcion
-; Imprime la fecha en el formato correcto por la pantalla
-; Entrada: a
-; Salida: pantalla
-; Afecta: a
+; FUNCION
+;       Imprime la fecha en el formato correcto por la pantalla
+; 
+;   Entrada: 
+;       A  
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A
 dospuntos: .asciz ": "
 imprime_fecha:
   lda *iBCD           ; Imprime i con el formato %02d
@@ -412,33 +441,47 @@ imprime_fecha:
 
   rts
 
-; Función
-; Imprime " de " por pantalla.
-; Entrada: nada
-; Salida: pantalla
-; Afecta: X
+; FUNCION
+;       Imprime " de " por pantalla
+; 
+;   Entrada: 
+;       X 
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A, B
 de: .asciz " de "
 imprimeDe:
   leax de, pcr
   bra imprimeASCII
 
-
-; Función.
-;   Imprime la cifra de las decenas de un numero en BCD (byte)
-; Entrada: a
-; Salida: pantalla
-; Afecta: a
+; FUNCION
+;       Imprime la cifra de las decenas de un numero en BCD (byte)
+; 
+;   Entrada: 
+;       A 
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A
 imprime_cifra1:
   lsra lsra lsra lsra
   adda #'0 
   sta pantalla
   rts
 
-; Función.
-;   Imprime la cifra de las unidades de un numero en BCD (byte)
-; Entrada: a
-; Salida: pantalla
-; Afecta: a
+; FUNCION
+;       Imprime la cifra de las unidades de un numero en BCD (byte)
+; 
+;   Entrada: 
+;       A 
+;
+;   Salida:
+;       Pantalla
+;
+;   Registros afectados: A
 imprime_cifra2:
   anda #0x0f
   adda #'0
@@ -449,4 +492,3 @@ imprime_cifra2:
 .org 0xFFFE
 .word programa
 
-;; TE QUIERO <3
