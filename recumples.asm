@@ -26,20 +26,6 @@ dia:         .word 0x{DIA}
 nCumples:    .byte 30
 
 
-; LISTA CON LOS DÍAS DE CADA MES
-listadiasmes:
-  .byte 0x31    ; 0x1 (enero)
-  .byte 0x28    ; Los días de febrero los actualizaremos más adelante, 
-  .byte 0x31    ; en función de si es o no bisiesto.
-  .byte 0x30
-  .byte 0x31
-  .byte 0x30
-  .byte 0x31
-  .byte 0x31
-  .byte 0x30   ; 0x9
-  .byte 0x31   ; 0xA (no 0x10)
-  .byte 0x30   ; 0xB (no 0x11)
-  .byte 0x31   ; 0xC (no 0x12)
 
 ; FUNCIÓNES QUE HACEN CALCULOS
 
@@ -91,10 +77,7 @@ resta_ajustada:
 ;
 ;   Registros afectados: A, B
 corregir_dia:
-  leax (listadiasmes-1), pcr  ; Cargamos la dirección anterior  
-                              ; al inicio de la tabla porque 
-                              ; los meses empizan en 1 y no en 0
-  cd_while:
+    cd_while:
     ; Función en linea
     ;     Actualiza el valor de la tabla de los días de los meses
     ;     en función de si el año actual es bisiesto
@@ -124,7 +107,7 @@ corregir_dia:
       ab_si_bisiesto:
         inca
       ab_no_bisiesto:
-        sta 2,x
+        sta 2,y
       ab_ret:
     ; Fin de función en linea
     ldd *a_dia                ; Guardamos el día en A y el mes en B
@@ -134,11 +117,11 @@ corregir_dia:
     subb #(0x10-0xA)          ; Ajuste para el índice (por el BCD)
     
     cd_menor10:
-      cmpa b, x               ; Número de días del mes en el que estamos
+      cmpa b, y               ; Número de días del mes en el que estamos
       bls inc8_rts            ; Saltamos a un return. Podía ser el de nuestra función, pero ocupa menos
                               ; saltar al de otra.
       
-      ldb b, x                ; B = dias[mes-1]
+      ldb b, y                ; B = dias[mes-1]
       bsr resta_ajustada      ; dias = dias - dias[mes-1]
       sta *a_dia
 
@@ -146,6 +129,7 @@ corregir_dia:
     bsr inc8                  ; mes++
     bsr corregir_mes          ; Corregimos el mes y guardamos el valor corregido en *a_mes
 
+  saltar_corregir_dia:
     bra cd_while
 
 ; FUNCIÓN
@@ -239,12 +223,31 @@ suma_i:
   daa             ; Podemos usar daa a secas porque la suma 
   rts             ; nunca > 0x61 (falla cuando pasa de 0x90)
 
+; LISTA CON LOS DÍAS DE CADA MES
+listadiasmes:
+  .byte 0x31    ; 0x1 (enero)
+  .byte 0x28    ; Los días de febrero los actualizaremos más adelante, 
+  .byte 0x31    ; en función de si es o no bisiesto.
+  .byte 0x30
+  .byte 0x31
+  .byte 0x30
+  .byte 0x31
+  .byte 0x31
+  .byte 0x30   ; 0x9
+  .byte 0x31   ; 0xA (no 0x10)
+  .byte 0x30   ; 0xB (no 0x11)
+  .byte 0x31   ; 0xC (no 0x12)
+
 programa:
   ; Inicializar stack
   lds #0xF000
-
+  leay (listadiasmes-1), pcr  ; Cargamos la dirección anterior al inicio de tabladiasmes 
+                              ; los meses empizan en 1 y no en 0. Así podemos utilizar
+                              ; el número del mes como índice.
+                              ; Utilizaremos este valor de y en corregir_dia
+ 
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
-  ; i, iBCD = 0 por defecto
+  ; Por defecto, i, iBCD - 0
   mbuclei:
     ldd aNo, pcr              ; Cargamos dia, mes año originales en las 
     std *a_ano                ; variables auxiliares, con las que
@@ -295,13 +298,13 @@ programa:
 
     bsr corregir_mes            ; corregir_mes guarda a en *a_mes, no tenemos que hacerlo nosotros 
     
-    lbsr corregir_dia  
+    bsr saltar_corregir_dia 
 
     lda *a_dia                  ; dia += i
     bsr suma_i                  ;
     sta *a_dia                  ;
 
-    lbsr corregir_dia 
+    bsr saltar_corregir_dia 
 
     bsr imprime_fecha
 
