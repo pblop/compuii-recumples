@@ -7,12 +7,12 @@ teclado         .equ 0xFF02
 
 ; VARIABLES AUX
 i               .equ 0x80           ; Usamos dos i distintas, una normal para 
-a_ano           .equ 0x81           ; poder comparar con nCumpeles al final del 
-a_ano_primera   .equ 0x81           ; bucle y otra en BCD, para poder imprimirla 
-a_ano_segunda   .equ 0x82           ; y hacer cuentas mas fácilmente
-a_dia           .equ 0x83
-a_mes           .equ 0x84
-iBCD            .equ 0x85
+iBCD            .equ 0x81
+a_ano           .equ 0x82           ; poder comparar con nCumpeles al final del 
+a_ano_primera   .equ 0x82           ; bucle y otra en BCD, para poder imprimirla 
+a_ano_segunda   .equ 0x83           ; y hacer cuentas mas fácilmente
+a_dia           .equ 0x84
+a_mes           .equ 0x85
 
 ; DIRECTIVAS
 .area _CODE (ABS)
@@ -135,7 +135,8 @@ corregir_dia:
     
     cd_menor10:
       cmpa b, x               ; Número de días del mes en el que estamos
-      bls cd_ret
+      bls inc8_rts            ; Saltamos a un return. Podía ser el de nuestra función, pero ocupa menos
+                              ; saltar al de otra.
       
       ldb b, x                ; B = dias[mes-1]
       bsr resta_ajustada      ; dias = dias - dias[mes-1]
@@ -143,12 +144,9 @@ corregir_dia:
 
     lda *a_mes
     bsr inc8                  ; mes++
-    bsr corregir_mes
+    bsr corregir_mes          ; Corregimos el mes y guardamos el valor corregido en *a_mes
 
     bra cd_while
-
-  cd_ret:
-    rts
 
 ; FUNCIÓN
 ;       Resta 12 al mes que tenemos hasta quedarnos
@@ -194,10 +192,10 @@ inc8:
   bne inc8_segunda
   adda #6               ; Convertirmos en BCD
 inc8_segunda:
-  cmpa #0xa0           ; Comprobamos si la primera cifra es 
-  blo inc8_ret         ; A-F
-  clra                 ; Convertimos en BCD
-inc8_ret:
+  cmpa #0xa0            ; Comprobamos si la primera cifra es 
+  blo inc8_rts          ; A-F
+  clra                  ; Convertimos en BCD
+inc8_rts:
   rts
   
 ; FUNCIÓN
@@ -223,8 +221,8 @@ incano:
     sta *a_ano_primera
 
   incano_ret:
-    puls a                    ; Restauramos el valor después de incrementar
-    rts
+    ; Al hacer puls pc, hago lo mismo que rts, pero con una instrucción menos.
+    puls a, pc                    ; Restauramos el valor después de incrementar
 
 ; FUNCIÓN
 ;       Suma i (BCD, 8 bits) a otro número en BCD de 8 bits
@@ -246,9 +244,8 @@ programa:
   lds #0xF000
 
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
-  clra            
-  sta *i                      ; Inicilizamos i a 0
-  sta *iBCD
+  clra clrb            
+  std *i                      ; Inicilizamos i a 0
   mbuclei:
     ldd aNo, pcr              ; Cargamos dia, mes año originales en las 
     std *a_ano                ; variables auxiliares, con las que
@@ -373,12 +370,9 @@ imprimeMes:
 imprimeASCII:
   iA_bucle:
     lda ,x+
-    beq iA_acabar
+    beq in_rts 
     sta pantalla
     bra iA_bucle
-
-  iA_acabar:
-    rts
 
 ; FUNCIÓN
 ;       Imprime la fecha en el formato correcto por la pantalla
@@ -472,6 +466,7 @@ imprime_cifra2:
 imprime_num:
   adda #'0
   sta pantalla
+in_rts:
   rts
 
 ; LISTA CON LAS CADENAS DE TEXTO DE LOS MESES
