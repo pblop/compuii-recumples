@@ -41,10 +41,10 @@ tabladiasmes:
   .byte 0x30   ; 0xB (no 0x11)
   .byte 0x31   ; 0xC (no 0x12)
 
-; FUNCIONES QUE HACEN CALCULOS
+; FUNCIÓNES QUE HACEN CALCULOS
 
-; FUNCION
-;       Ajuste de la resta para que nos de un numero en BCD.
+; FUNCIÓN
+;       Ajuste de la resta para que nos de un número en BCD.
 ; 
 ;   Explicacion:
 ;       Hemos comprobado que solamente hay que corregir la resta cuando
@@ -79,7 +79,7 @@ resta_ajustada:
     suba ,s+    ; Restamos los dos números.
     rts
 
-; FUNCION
+; FUNCIÓN
 ;       Corregir el dia si nos pasamos de los que puede tener un mes
 ; 
 ;   Entrada: 
@@ -95,7 +95,7 @@ corregir_dia:
                               ; al inicio de la tabla porque 
                               ; los meses empizan en 1 y no en 0
   cd_while:
-    ; Funcion en linea
+    ; Función en linea
     ;     Actualiza el valor de la tabla de los días de los meses
     ;     en función de si el año actual es bisiesto
     ;
@@ -107,11 +107,11 @@ corregir_dia:
     ;
     ;   Registros afectados: D, tabladiasmes
     actualiza_bisiesto:
-      ldb *a_ano_segunda      ; Solo necesitamos la ultima parte de ano
+      ldb *a_ano_segunda      ; Solo necesitamos la última parte de ano
       asrb                    ; Si el último bit de la última cifra es 1, 
       bcs ab_no_bisiesto      ; no es bisiesto.
 
-      andb #0b00001001        ; Para que un numero sea bisiesto, en binario
+      andb #0b00001001        ; Para que un número sea bisiesto, en binario
       beq ab_si_bisiesto      ; su bit 0 tiene que ser igual al bit 3
       cmpb #0b00001001 
       beq ab_si_bisiesto
@@ -123,7 +123,7 @@ corregir_dia:
         ldb #0x29
       ab_ret:
         stb 2,x
-    ; Fin de funcion en linea
+    ; Fin de función en linea
     ldd *a_dia                ; Guardamos el día en A y el mes en B
     cmpb #10                  
     blo cd_menor10
@@ -131,7 +131,7 @@ corregir_dia:
     subb #(0x10-0xA)          ; Ajuste para el indice (por el BCD)
     
     cd_menor10:
-      cmpa b, x               ; numero de dias del mes en el que estamos
+      cmpa b, x               ; número de dias del mes en el que estamos
       bls cd_ret
       
       ldb b, x                ; B = dias[mes-1]
@@ -147,7 +147,7 @@ corregir_dia:
   cd_ret:
     rts
 
-; FUNCION
+; FUNCIÓN
 ;       Resta 12 al mes que tenemos hasta quedarnos
 ;       con uno valido e incrementa el año con cada vuelta
 ; 
@@ -172,20 +172,20 @@ corregir_mes:
 
     bra corregir_mes
 
-; FUNCION
+; FUNCIÓN
 ;       Incrementa un número de 8 bits en BCD
 ; 
 ;   Entrada: 
 ;       A (número a incrementar) 
 ;
 ;   Salida:
-;       A (numero incrementado)
+;       A (número incrementado)
 ;
 ;   Registros afectados: A, B
 inc8:
   inca
   tfr a,b
-  andb #0x0f            ; Comprobamos si la ultima cifra es 
+  andb #0x0f            ; Comprobamos si la última cifra es 
   cmpb #0x0a            ; A-F
   bne inc8_segunda
   adda #6               ; Convertirmos en BCD
@@ -196,7 +196,7 @@ inc8_segunda:
 inc8_ret:
   rts
   
-; FUNCION
+; FUNCIÓN
 ;       Incrementa un número de 16 bits en BCD (año)
 ; 
 ;   Entrada: 
@@ -210,7 +210,7 @@ incano:
   pshs a                      ; Guardamos el valor de A para no borrarlo
 
   lda *a_ano_segunda
-  bsr inc8                    ; Incrementamos las dos ultimas cifras
+  bsr inc8                    ; Incrementamos las dos últimas cifras
   sta *a_ano_segunda
   beq incano_2000             ; Comprobamos si nos ha quedado el registro
   bra incano_ret              ; A vacío (00) para hacer el cambio
@@ -223,8 +223,8 @@ incano:
     puls a                    ; Restauramos el valor después de incrementar
     rts
 
-; FUNCION
-;       Suma i (BCD, 8 bits) a otro numero en BCD de 8 bits
+; FUNCIÓN
+;       Suma i (BCD, 8 bits) a otro número en BCD de 8 bits
 ; 
 ;   Entrada: 
 ;       A (número a sumar) 
@@ -258,11 +258,11 @@ programa:
     ;
     ; Entrada:
     ;          a_año: primer número
-    ;          nCumples: segundo numero
+    ;          nCumples: segundo número
     ; Registros afectados: 
     ; Salida:
     ;          a_año: suma
-    ; Funcion en linea
+    ; Función en linea
     ;      Suma dos números (8 y 16 bits) en BCD (i y aNo)
     ;
     ;   Explicacion:
@@ -321,9 +321,9 @@ programa:
   clra
   sta fin
 
-; FUNCIONES PARA IMPRIMIR
+; FUNCIÓNES PARA IMPRIMIR
 
-; FUNCION
+; FUNCIÓN
 ;       Imprime el mes por pantalla
 ; 
 ;   Entrada: 
@@ -357,7 +357,7 @@ imprimeMes:
   ; Pero además, como imprimeASCII está justo debajo de esta función, no tenemos
   ; ni que saltar a ella.
 
-; FUNCION
+; FUNCIÓN
 ;       Imprime la cadena ASCII marcada por X por pantalla
 ; 
 ;   Entrada: 
@@ -377,7 +377,7 @@ imprimeASCII:
   iA_acabar:
     rts
 
-; FUNCION
+; FUNCIÓN
 ;       Imprime la fecha en el formato correcto por la pantalla
 ; 
 ;   Entrada: 
@@ -422,7 +422,7 @@ imprime_fecha:
   lda #'\n
   bra stapantallrts
 
-; FUNCION
+; FUNCIÓN
 ;       Imprime " de " por pantalla
 ; 
 ;   Entrada: 
@@ -437,8 +437,8 @@ imprimeDe:
   leax de, pcr
   bra imprimeASCII
 
-; FUNCION
-;       Imprime la cifra de las decenas de un numero en BCD (byte)
+; FUNCIÓN
+;       Imprime la cifra de las decenas de un número en BCD (byte)
 ; 
 ;   Entrada: 
 ;       A 
@@ -452,8 +452,8 @@ imprime_cifra1:
   adda #'0 
   bra stapantallrts
 
-; FUNCION
-;       Imprime la cifra de las unidades de un numero en BCD (byte)
+; FUNCIÓN
+;       Imprime la cifra de las unidades de un número en BCD (byte)
 ; 
 ;   Entrada: 
 ;       A 
