@@ -75,17 +75,19 @@ tabladiasmes:
 ;                  0x37 - 0x30 = 0x07, no hay que hacer ajuste (0 < 7)
 ; 
 ;   Entrada: 
-;       Minuendo: a
-;       Sustraendo: b
+;       Minuendo: A
+;       Sustraendo: B
 ;
 ;   Salida:
-;       Diferencia (ajustada): a
+;       Diferencia (ajustada): A
+;
+;   Registros afectados: A, B
 ajuste_resta:
   pshs d       ; Guardamos los dos miembros de la resta
-  anda #0x0f   ; a contiene la última cifra (uc1) del minuendo
-  andb #0x0f   ; b contiene la uc2 del sustraendo
+  anda #0x0f   ; A contiene la última cifra (uc1) del minuendo
+  andb #0x0f   ; B contiene la uc2 del sustraendo
 
-  pshs a       ; Comparo b con a
+  pshs a       ; Comparo A con B
   cmpb ,s+     ; 
 
   puls d
@@ -96,29 +98,40 @@ ajuste_resta:
   ar_noajustarresta:
     rts
 
-
-
-; Funcion.
-; Corregir el dia si nos pasamos de los que puede tener un mes
-; Entrada: a_dia, a_mes 
-; Salida:  a_dia
-; Registros afectados: a, b
+; FUNCION
+;       Corregir el dia si nos pasamos de los que puede tener un mes
+; 
+;   Entrada: 
+;       a_dia 
+;       a_mes 
+;
+;   Salida:
+;       a_dia ajustado
+;
+;   Registros afectados: A, B
 corregir_dia:
-  leax (tabladiasmes-1), pcr
+  leax (tabladiasmes-1), pcr  ; Cargamos la direccion anterior  
+                              ; al inicio de la tabla porque 
+                              ; los meses empizan en 1 y no en 0
   cd_while:
-    ; Función en linea
-    ; Actualiza el valor de la tabla de los días de los meses
-    ; en función de si el año actual es bisiesto.
-    ; Entrada: nada
-    ; Salida: los días de febrero en la tabladiasmes
-    ; Afecta: D, tabladiasmes
-      ldb *a_ano_segunda ; solo necesitamos la ultima parte de ano
-      ; Si el último bit de la última cifra es 1, no es bisiesto.
-      asrb
-      bcs ab_no_bisiesto
+    ; Funcion en linea
+    ;     Actualiza el valor de la tabla de los días de los meses
+    ;     en función de si el año actual es bisiesto
+    ;
+    ;   Entrada:
+    ;     a_ano_segunda
+    ;
+    ;   Salida: 
+    ;     los días de febrero en la tabladiasmes
+    ;
+    ;   Registros afectados: D, tabladiasmes
+    actualiza_bisiesto:
+      ldb *a_ano_segunda      ; Solo necesitamos la ultima parte de ano
+      asrb                    ; Si el último bit de la última cifra es 1, 
+      bcs ab_no_bisiesto      ; no es bisiesto.
 
-      andb #0b00001001
-      beq ab_si_bisiesto
+      andb #0b00001001        ; Para que un numero sea bisiesto, en binario
+      beq ab_si_bisiesto      ; su bit 0 tiene que ser igual al bit 3
       cmpb #0b00001001 
       beq ab_si_bisiesto
 
@@ -130,25 +143,25 @@ corregir_dia:
       ab_ret:
         stb 2,x
     ; Fin de funcion en linea
-    ldd *a_dia ; Guardamos el día en a, y el mes en b
-    cmpb #10
+    ldd *a_dia                ; Guardamos el día en A y el mes en B
+    cmpb #10                  
     blo cd_menor10
 
-    subb #(0x10-0xA) ; Igual que en imprimeMes
+    subb #(0x10-0xA)          ; Ajuste para el indice (por el BCD)
     
     cd_menor10:
-      cmpa b, x ; numero de dias del mes en el que estamos
+      cmpa b, x               ; numero de dias del mes en el que estamos
       bls cd_ret
       
-      ldb b, x  ; b = dias[mes-1]
+      ldb b, x                ; B = dias[mes-1]
       pshs b
       bsr ajuste_resta
-      suba ,s+  ; dia -= dias[mes-1]
+      suba ,s+                ; dia -= dias[mes-1]
 
       sta *a_dia
 
     lda *a_mes
-    bsr inc8  ; mes++
+    bsr inc8                  ; mes++
     bsr corregir_mes
 
     bra cd_while
@@ -157,10 +170,21 @@ corregir_dia:
     rts
 
 ; Función.
-;   Vuelve a enero cuando estamos en el mes 13 e incrementa el año.
+;   
 ; Entrada: a (mes) 
 ; Salida: a (mes modificado)
 ; Afecta: a
+; FUNCION
+;       Resta 12 al mes que tenemos hasta quedarnos
+;       con uno valido e incrementa el año con cada vuelta
+; 
+;   Entrada: 
+;       A (a_mes)
+;
+;   Salida:
+;       A (a_mes ajustado)
+;
+;   Registros afectados: A, B
 corregir_mes:
   cmpa #0x12
   bhi cm_cuerpowhile
