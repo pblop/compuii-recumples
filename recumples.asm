@@ -82,20 +82,21 @@ tabladiasmes:
 ;       Diferencia (ajustada): A
 ;
 ;   Registros afectados: A, B
-ajuste_resta:
-  pshs d       ; Guardamos los dos miembros de la resta
-  anda #0x0f   ; A contiene la última cifra (uc1) del minuendo
-  andb #0x0f   ; B contiene la uc2 del sustraendo
+resta_ajustada:
+  pshs d        ; Guardamos los dos miembros de la resta
+  anda #0x0f    ; A contiene la última cifra (uc1) del minuendo
+  andb #0x0f    ; B contiene la uc2 del sustraendo
 
-  pshs a       ; Comparo A con B
-  cmpb ,s+     ; 
+  pshs a        ; Comparo A con B
+  cmpb ,s+      ; 
 
-  puls d
+  puls a
   ; Ajustar resta si uc2 > uc1.       
-  bls ar_noajustarresta 
+  bls ra_noajustar 
   suba #6
 
-  ar_noajustarresta:
+  ra_noajustar: ; Después de ajustar la resta si es necesario,
+    suba ,s+    ; restamos los dos números.
     rts
 
 ; FUNCION
@@ -154,9 +155,7 @@ corregir_dia:
       bls cd_ret
       
       ldb b, x                ; B = dias[mes-1]
-      pshs b
-      bsr ajuste_resta
-      suba ,s+                ; dia -= dias[mes-1]
+      bsr resta_ajustada
 
       sta *a_dia
 
@@ -194,9 +193,7 @@ corregir_mes:
 
   cm_cuerpowhile:
     ldb #0x12
-    bsr ajuste_resta
-    ;; cuerpo del while
-    suba #0x12
+    bsr resta_ajustada
 
     bsr incano
 
