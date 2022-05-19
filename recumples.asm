@@ -1,3 +1,12 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                                  ;
+;                        PRÁCTICA FINAL COMPUTADORES II                            ;
+;                                                                                  ;
+;                     Pablo Pérez Rodríguez  <pab@usal.es>                         ;
+;             María Encarnación Sánchez Sánchez <encars28@usal.es>                 ;
+;                                                                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 .area PROG (ABS)
 
 ; CONSTANTES
@@ -24,8 +33,6 @@ aNo:         .word 0x{ANO}
 mes:         .word 0x{MES}
 dia:         .word 0x{DIA}
 nCumples:    .byte 30
-
-
 
 ; FUNCIÓNES QUE HACEN CALCULOS
 
@@ -93,8 +100,9 @@ corregir_dia:
     actualiza_bisiesto:
       ldb *a_ano_segunda      ; Solo necesitamos la última parte de año
       lda #0x28               ; Cargo 0x28, este es el número que vamos a guardar
-                              ; en la entrada de febrero en listadiasmes. Si es bisiesto
-                              ; incrementamos el número (0x29) antes de guardarlo.
+                              ; en la entrada de febrero en listadiasmes. Si es
+                              ; bisiesto incrementamos el número (a 0x29) antes de
+                              ; guardarlo.
 
       asrb                    ; Si el último bit de la última cifra es 1, 
       bcs ab_no_bisiesto      ; no es bisiesto.
@@ -110,6 +118,7 @@ corregir_dia:
         sta 2,y
       ab_ret:
     ; Fin de función en linea
+
     ldd *a_dia                ; Guardamos el día en A y el mes en B
     cmpb #10                  
     blo cd_menor10
@@ -118,8 +127,8 @@ corregir_dia:
     
     cd_menor10:
       cmpa b, y               ; Número de días del mes en el que estamos
-      bls inc8_rts            ; Saltamos a un return. Podía ser el de nuestra función, pero ocupa menos
-                              ; saltar al de otra.
+      bls inc8_rts            ; Saltamos a un return. Podía ser el de nuestra
+                              ; función, pero ocupa menos saltar al de otra.
       
       ldb b, y                ; B = dias[mes-1]
       bsr resta_ajustada      ; dias = dias - dias[mes-1]
@@ -127,10 +136,13 @@ corregir_dia:
 
     lda *a_mes
     bsr inc8                  ; mes++
-    bsr corregir_mes          ; Corregimos el mes y guardamos el valor corregido en *a_mes
+    bsr corregir_mes          ; Corregimos el mes y guardamos el valor corregido 
+                              ; en *a_mes
 
   saltar_corregir_dia:
     bra cd_while
+
+
 
 ; FUNCIÓN
 ;       Resta 12 al mes que tenemos hasta quedarnos
@@ -153,7 +165,7 @@ corregir_mes:
 
   cm_cuerpowhile:
     ldb #0x12
-    bsr resta_ajustada      ; mes = mes -12
+    bsr resta_ajustada      ; mes = mes - 12
     bsr incano              ; ano++
 
     bra corregir_mes
@@ -171,14 +183,14 @@ corregir_mes:
 inc8:
   inca
   tfr a,b
-  andb #0x0f            ; Comprobamos si la última cifra es 
-  cmpb #0x0a            ; A-F
+  andb #0x0f            ; Comprobamos si la última cifra es A-F
+  cmpb #0x0a
   bne inc8_segunda
-  adda #6               ; Convertirmos en BCD
+  adda #6               ; Convertirmos a BCD
 inc8_segunda:
-  cmpa #0xa0            ; Comprobamos si la primera cifra es 
-  blo inc8_rts          ; A-F
-  clra                  ; Convertimos en BCD
+  cmpa #0xa0            ; Si el número que tenemos es >0xa0 (100), hay carry,
+  blo inc8_rts          ; por lo que borramos el registro A.
+  clra
 inc8_rts:
   rts
   
@@ -196,17 +208,19 @@ incano:
   pshs a                      ; Guardamos el valor de A para no borrarlo
 
   lda *a_ano_segunda
-  bsr inc8                    ; Incrementamos las dos últimas cifras
+  bsr inc8                    ; Incrementamos la parte baja de D (dos últimas
+                              ; cifras).
   sta *a_ano_segunda
-  bne incano_ret              ; A vacío (00) para hacer el cambio
-                              ; de milenio 
+  bne incano_ret              ; Si A está vacío (00), ha habido carry,
+                              ; hacemos el cambio de milenio para hacer el cambio
   incano_2000:
     lda #0x20
     sta *a_ano_primera
 
   incano_ret:
-    ; Al hacer puls pc, hago lo mismo que rts, pero con una instrucción menos.
-    puls a, pc                    ; Restauramos el valor después de incrementar
+    puls a, pc                    ; Restauramos A, ya que lo hemos modificado dentro
+                                  ; de la función. Al hacer 'puls pc' esta
+                                  ; instrucción sirve como rts, ahorrando espacio.
 
 ; FUNCIÓN
 ;       Suma i (BCD, 8 bits) a otro número en BCD de 8 bits
@@ -220,7 +234,7 @@ incano:
 ;   Registros afectados: A
 suma_i:
   adda *iBCD 
-  daa             ; Podemos usar daa a secas porque la suma 
+  daa             ; Podemos usar 'daa' a secas porque la suma 
   rts             ; nunca > 0x61 (falla cuando pasa de 0x90)
 
 ; LISTA CON LOS DÍAS DE CADA MES
@@ -233,18 +247,19 @@ listadiasmes:
   .byte 0x30
   .byte 0x31
   .byte 0x31
-  .byte 0x30   ; 0x9
-  .byte 0x31   ; 0xA (no 0x10)
-  .byte 0x30   ; 0xB (no 0x11)
-  .byte 0x31   ; 0xC (no 0x12)
+  .byte 0x30    ; 0x9
+  .byte 0x31    ; 0xA (no 0x10)
+  .byte 0x30    ; 0xB (no 0x11)
+  .byte 0x31    ; 0xC (no 0x12)
 
 programa:
   ; Inicializar stack
   lds #0xF000
-  leay (listadiasmes-1), pcr  ; Cargamos la dirección anterior al inicio de tabladiasmes 
-                              ; los meses empizan en 1 y no en 0. Así podemos utilizar
-                              ; el número del mes como índice.
-                              ; Utilizaremos este valor de y en corregir_dia
+  leay (listadiasmes-1), pcr  ; Cargamos la dirección anterior al inicio de 
+                              ; listadiasmes. Así podemos utilizar el número del mes
+                              ; como índice (porque los meses empiezan en 1 y los
+                              ; índices de las listas en 0).
+                              ; Utilizaremos este valor de Y en corregir_dia.
  
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
   ; Por defecto, i, iBCD - 0
@@ -296,7 +311,8 @@ programa:
     lda *a_mes                  ; mes += i
     bsr suma_i                  ;
 
-    bsr corregir_mes            ; corregir_mes guarda a en *a_mes, no tenemos que hacerlo nosotros 
+    bsr corregir_mes            ; corregir_mes guarda a en *a_mes, no tenemos que
+                                ; guardarlo otra vez. 
     
     bsr saltar_corregir_dia 
 
@@ -339,10 +355,11 @@ imprimeMes:
   leax lista_nombres, pcr     ; Cargamos la dirección anterior al comienzo de la 
                               ; tabla porque los meses empiezan en 1, en vez de 0
 
-  ldb *a_mes                  ; Si el número es >=0x10, le restamos 0x6 (la distancia
-  cmpb #0x10                  ; desde 0xA (10) y 0x10 (el número que queremos) para que
-  blo iM_menor10              ; el número 0x10 de al elemento 10 (0xA), no al 16(0x10).
-    subb #(0x10-0xA)          ; Osea, convertimos el BCD a hexa.
+  ldb *a_mes                  ; Si el número es >=0x10, le restamos 0x6 (la
+  cmpb #0x10                  ; distancia desde 0xA (10) y 0x10 (el número que 
+  blo iM_menor10              ; queremos) para que el número 0x10 de al elemento 
+                              ; 10 (0xA), no al 16 (0x10).
+  subb #(0x10-0xA)            ; Osea, convertimos el BCD a hexa.
                               
   iM_menor10:
     iM_bucle:
@@ -354,8 +371,8 @@ imprimeMes:
       bne iM_bucle            ; Cuando llegamos a 0, imprimimos. 
                               ; BNE salta cuando no hemos llegado a 0
 
-  ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
-  ; podríamos optimizarlo con un bra imprimeASCII en su lugar.
+  ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la
+  ; función, podríamos optimizarlo con un bra imprimeASCII en su lugar.
   ; Pero además, como imprimeASCII está justo debajo de esta función, no tenemos
   ; ni que saltar a ella.
 
@@ -394,15 +411,15 @@ imprime_fecha:
   leax dospuntos, pcr
   bsr imprimeASCII
 
-  lda *a_dia                  ; Imprimimos a_dia con el formato %d
-  cmpa #0x10                  ;
-  blo if_menor10              ; Si a_dia < 10, no imprimimos la primera cifra
-  
-  bsr imprime_cifras
-  bra if_finmenor10
-  if_menor10:
-    bsr imprime_cifra2
-  if_finmenor10:
+  lda *a_dia                  ; Imprimimos a_dia con el formato %d. Para esto:
+  cmpa #0x10                  ; 
+  blo if_menor10              ; si a_dia < 10, sólo imprimimos la segunda cifra.
+                              ;
+  bsr imprime_cifras          ; si a_dia >= 10, imprimimos ambas cifras.
+  bra if_finmenor10           ;
+  if_menor10:                 ;
+    bsr imprime_cifra2        ;
+  if_finmenor10:              ;
 
   bsr imprimeDe               ; Imprimimos el primer de
   bsr imprimeMes
@@ -415,6 +432,9 @@ imprime_fecha:
 
   lda #'\n-#'0                ; Cargar esto es una mickey-herramienta sorpresa
   bra imprime_num             ; para poder usar imprime_num (que añade #'0 a a) 
+
+
+
 
 ; FUNCIÓN
 ;       Imprime " de " por pantalla
@@ -468,8 +488,8 @@ imprime_cifra2:
 imprime_num:
   adda #'0
   sta pantalla
-in_rts:
-  rts
+in_rts:         ; Utilizaremos este in_rts para saltar desde otras funciones y
+  rts           ; ahorrar espacio.
 
 ; LISTA CON LAS CADENAS DE TEXTO DE LOS MESES
 ;
