@@ -186,12 +186,12 @@ inc8:
   inca
   tfr a,b
   andb #0x0f            ; Comprobamos si la ultima cifra es 
-  cmpb #0x0a            ; A, B, C, D o F
+  cmpb #0x0a            ; A-F
   bne inc8_segunda
   adda #6               ; Convertirmos en BCD
 inc8_segunda:
   cmpa #0xa0           ; Comprobamos si la primera cifra es 
-  blo inc8_ret         ; A, B, C, D o F
+  blo inc8_ret         ; A-F
   clra                 ; Convertimos en BCD
 inc8_ret:
   rts
@@ -352,7 +352,10 @@ imprimeMes:
       bne iM_bucle            ; Cuando llegamos a 0, imprimimos. 
                               ; BNE salta cuando no hemos llegado a 0
 
-  ; No saltamos a imprimeASCII porque tenemos la función justo debajo
+  ; Aquí pondríamos un bsr imprimeASCII y un rts, pero como es el final de la función,
+  ; podríamos optimizarlo con un bra imprimeASCII en su lugar.
+  ; Pero además, como imprimeASCII está justo debajo de esta función, no tenemos
+  ; ni que saltar a ella.
 
 ; FUNCION
 ;       Imprime la cadena ASCII marcada por X por pantalla
@@ -386,7 +389,7 @@ imprimeASCII:
 ;   Registros afectados: A
 dospuntos: .asciz ": "
 imprime_fecha:
-  lda *iBCD           ; Imprime i con el formato %02d
+  lda *iBCD                   ; Imprime i con el formato %02d
   bsr imprime_cifra1
   lda *iBCD
   bsr imprime_cifra2
@@ -417,9 +420,7 @@ imprime_fecha:
   bsr imprime_cifra2          ; Aquí la cuerta cifra
 
   lda #'\n
-  sta pantalla
-
-  rts
+  bra stapantallrts
 
 ; FUNCION
 ;       Imprime " de " por pantalla
@@ -449,8 +450,7 @@ imprimeDe:
 imprime_cifra1:
   lsra lsra lsra lsra
   adda #'0 
-  sta pantalla
-  rts
+  bra stapantallrts
 
 ; FUNCION
 ;       Imprime la cifra de las unidades de un numero en BCD (byte)
@@ -465,6 +465,12 @@ imprime_cifra1:
 imprime_cifra2:
   anda #0x0f
   adda #'0
+
+; Para ahorrar espacio, saltamos a esta mini-función cada vez que queramos hacer:
+;       sta pantalla
+;       rts
+; ¡Así ahorramos 1 byte (o 2)!
+stapantallrts:
   sta pantalla
   rts
 
