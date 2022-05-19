@@ -26,8 +26,8 @@ dia:         .word 0x{DIA}
 nCumples:    .byte 30
 
 
-; TABLA CON LOS DIAS DE CADA MES
-tabladiasmes:
+; LISTA CON LOS DÍAS DE CADA MES
+listadiasmes:
   .byte 0x31    ; 0x1 (enero)
   .byte 0x28    ; Los días de febrero los actualizaremos más adelante, 
   .byte 0x31    ; en función de si es o no bisiesto.
@@ -91,7 +91,7 @@ resta_ajustada:
 ;
 ;   Registros afectados: A, B
 corregir_dia:
-  leax (tabladiasmes-1), pcr  ; Cargamos la direccion anterior  
+  leax (listadiasmes-1), pcr  ; Cargamos la direccion anterior  
                               ; al inicio de la tabla porque 
                               ; los meses empizan en 1 y no en 0
   cd_while:
@@ -103,9 +103,9 @@ corregir_dia:
     ;     a_ano_segunda
     ;
     ;   Salida: 
-    ;     los días de febrero en la tabladiasmes
+    ;     los días de febrero en la listadiasmes
     ;
-    ;   Registros afectados: D, tabladiasmes
+    ;   Registros afectados: D, listadiasmes
     actualiza_bisiesto:
       ldb *a_ano_segunda      ; Solo necesitamos la última parte de ano
       asrb                    ; Si el último bit de la última cifra es 1, 
@@ -131,7 +131,7 @@ corregir_dia:
     subb #(0x10-0xA)          ; Ajuste para el indice (por el BCD)
     
     cd_menor10:
-      cmpa b, x               ; número de dias del mes en el que estamos
+      cmpa b, x               ; número de días del mes en el que estamos
       bls cd_ret
       
       ldb b, x                ; B = dias[mes-1]
@@ -278,7 +278,7 @@ programa:
     ;   Salida: 
     ;       a_ano
     ;
-    ;   Registros afectados: D, tabladiasmes
+    ;   Registros afectados: D, listadiasmes
     sumaano:
       lda #0x0                  ; j = 0 para el bucle
       sa_bucle:                 
