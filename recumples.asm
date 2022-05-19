@@ -212,8 +212,7 @@ incano:
   lda *a_ano_segunda
   bsr inc8                    ; Incrementamos las dos últimas cifras
   sta *a_ano_segunda
-  beq incano_2000             ; Comprobamos si nos ha quedado el registro
-  bra incano_ret              ; A vacío (00) para hacer el cambio
+  bne incano_ret              ; A vacío (00) para hacer el cambio
                               ; de milenio 
   incano_2000:
     lda #0x20
