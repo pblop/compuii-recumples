@@ -108,21 +108,21 @@ corregir_dia:
     ;   Registros afectados: D, listadiasmes
     actualiza_bisiesto:
       ldb *a_ano_segunda      ; Solo necesitamos la última parte de año
+      lda #0x28
+
       asrb                    ; Si el último bit de la última cifra es 1, 
       bcs ab_no_bisiesto      ; no es bisiesto.
 
       andb #0b00001001        ; Para que un número sea bisiesto, en binario
       beq ab_si_bisiesto      ; su bit 0 tiene que ser igual al bit 3
       cmpb #0b00001001 
-      beq ab_si_bisiesto
+      bne ab_no_bisiesto
 
-      ab_no_bisiesto:
-        ldb #0x28
-        bra ab_ret
       ab_si_bisiesto:
-        ldb #0x29
+        inca
+      ab_no_bisiesto:
       ab_ret:
-        stb 2,x
+        sta 2,x
     ; Fin de función en linea
     ldd *a_dia                ; Guardamos el día en A y el mes en B
     cmpb #10                  
@@ -152,10 +152,11 @@ corregir_dia:
 ;       con uno válido e incrementa el año con cada vuelta
 ; 
 ;   Entrada: 
-;       A (a_mes)
+;       A (mes)
 ;
 ;   Salida:
-;       A (a_mes ajustado)
+;       A (a_mes ajustado) = a_mes
+;       a_mes
 ;
 ;   Registros afectados: A, B
 corregir_mes:
@@ -242,7 +243,7 @@ programa:
   lds #0xF000
 
   ; Bucle principal -> for(int i = 0; i <= nCumples; i++)
-  lda #0            
+  clra            
   sta *i                      ; Inicilizamos i a 0
   sta *iBCD
   mbuclei:
@@ -279,7 +280,7 @@ programa:
     ;
     ;   Registros afectados: D, listadiasmes
     sumaano:
-      lda #0x0                  ; j = 0 para el bucle
+      clra                      ; j = 0 para el bucle
       sa_bucle:                 
         cmpa *iBCD              ; while j < i
         bhs sa_ret
