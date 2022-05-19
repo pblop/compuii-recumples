@@ -25,27 +25,6 @@ mes:         .word 0x{MES}
 dia:         .word 0x{DIA}
 nCumples:    .byte 30
 
-; LISTA CON LAS CADENAS DE TEXTO DE LOS MESES
-;
-; Guardamos un byte 0 al comienzo de la misma porque los meses están indizados en 1,
-; es decir, enero es el mes 1, no el mes 0. 
-; De esta manera, cuando buscamos ceros mas adelante en imprimir_mes, si queremos
-; imprimir enero encontrara 1, para febrero encontrara 2, etc.
-; por el byte que hemos añadido.
-lista_nombres: 
-  .byte 0
-  enero:        .asciz "enero"
-  febrero:      .asciz "febrero"
-  marzo:        .asciz "marzo"
-  abril:        .asciz "abril"
-  mayo:         .asciz "mayo"
-  junio:        .asciz "junio"
-  julio:        .asciz "julio"
-  agosto:       .asciz "agosto"
-  septiembre:   .asciz "septiembre"
-  octubre:      .asciz "octubre"
-  noviembre:    .asciz "noviembre"
-  diciembre:    .asciz "diciembre"
 
 ; TABLA CON LOS DIAS DE CADA MES
 tabladiasmes:
@@ -487,6 +466,28 @@ imprime_cifra2:
   adda #'0
   sta pantalla
   rts
+
+; LISTA CON LAS CADENAS DE TEXTO DE LOS MESES
+;
+; Guardamos un byte 0 al comienzo de la misma porque los meses están indizados en 1,
+; es decir, enero es el mes 1, no el mes 0. 
+; De esta manera, cuando buscamos ceros mas adelante en imprimir_mes, si queremos
+; imprimir enero encontrara 1, para febrero encontrara 2, etc.
+; por el byte que hemos añadido.
+lista_nombres: 
+  .byte 0
+  enero:        .asciz "enero"
+  febrero:      .asciz "febrero"
+  marzo:        .asciz "marzo"
+  abril:        .asciz "abril"
+  mayo:         .asciz "mayo"
+  junio:        .asciz "junio"
+  julio:        .asciz "julio"
+  agosto:       .asciz "agosto"
+  septiembre:   .asciz "septiembre"
+  octubre:      .asciz "octubre"
+  noviembre:    .asciz "noviembre"
+  diciembre:    .asciz "diciembre"
 
 ; Iniciar el programa en 'programa'
 .org 0xFFFE
